@@ -7,6 +7,13 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
+import Leads from "./pages/admin/Leads";
+import Orcamentos from "./pages/admin/Orcamentos";
+import Pedidos from "./pages/admin/Pedidos";
+import Financeiro from "./pages/admin/Financeiro";
+import Clientes from "./pages/admin/Clientes";
+import Relatorios from "./pages/admin/Relatorios";
+import Configuracoes from "./pages/admin/Configuracoes";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -30,7 +37,62 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route
+              path="/admin/leads"
+              element={
+                <ProtectedRoute>
+                  <Leads />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/orcamentos"
+              element={
+                <ProtectedRoute>
+                  <Orcamentos />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/pedidos"
+              element={
+                <ProtectedRoute>
+                  <Pedidos />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/financeiro"
+              element={
+                <ProtectedRoute>
+                  <Financeiro />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/clientes"
+              element={
+                <ProtectedRoute>
+                  <Clientes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/relatorios"
+              element={
+                <ProtectedRoute>
+                  <Relatorios />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/configuracoes"
+              element={
+                <ProtectedRoute>
+                  <Configuracoes />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
