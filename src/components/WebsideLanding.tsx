@@ -36,7 +36,7 @@ const Stat = ({ value, label }: { value: string; label: string }) => (
   </motion.div>
 );
 
-const Feature = ({ icon: Icon, title, desc }: { icon: any; title: string; desc: string }) => (
+const Feature = ({ icon: Icon, title, desc }: { icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; title: string; desc: string }) => (
   <motion.div variants={container}>
     <Card className="border-0 shadow-card bg-white/90 backdrop-blur hover:shadow-brand transition-all duration-300 hover:-translate-y-1">
       <CardHeader className="pb-2">

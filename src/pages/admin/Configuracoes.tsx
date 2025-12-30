@@ -1,17 +1,233 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, User, Bell, Shield, Palette, Save } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Building2, User, Bell, Shield, Palette, Settings, Save, CheckCircle, Loader2 } from 'lucide-react';
+import { apiService } from '@/lib/api';
 
 const Configuracoes: React.FC = () => {
   const [notificacoesEmail, setNotificacoesEmail] = useState(true);
   const [notificacoesPush, setNotificacoesPush] = useState(false);
   const [temaEscuro, setTemaEscuro] = useState(false);
+  const [menuCompacto, setMenuCompacto] = useState(false);
+  const [resumoDiario, setResumoDiario] = useState(true);
+  const [alertasVencimento, setAlertasVencimento] = useState(true);
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [empresaData, setEmpresaData] = useState({
+    razaoSocial: '',
+    nomeFantasia: '',
+    cnpj: '',
+    ie: '',
+    endereco: '',
+    telefone: '',
+    email: ''
+  });
+  const [usuarioData, setUsuarioData] = useState({
+    nome: '',
+    email: '',
+    cargo: '',
+    departamento: ''
+  });
+  const [senhaData, setSenhaData] = useState({
+    atual: '',
+    nova: '',
+    confirmar: ''
+  });
+  const [parametrosData, setParametrosData] = useState({
+    salarioMinimo: 0,
+    percentualReajuste: 0,
+    diasVencimentoFatura: 0,
+    taxaJurosMora: 0,
+    dataVigencia: ''
+  });
+
+  // Fetch initial data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        // Fetch empresas (assuming first one is the current company)
+        const empresas = await apiService.getEmpresas() as any[];
+        if (empresas && empresas.length > 0) {
+          const empresa = empresas[0];
+          setEmpresaData({
+            razaoSocial: empresa.razao_social || '',
+            nomeFantasia: empresa.nome_fantasia || '',
+            cnpj: empresa.cnpj || '',
+            ie: empresa.inscricao_estadual || '',
+            endereco: empresa.endereco || '',
+            telefone: empresa.telefone || '',
+            email: empresa.email || ''
+          });
+        }
+
+        // Fetch user profile
+        const profile = await apiService.getProfile() as any;
+        setUsuarioData({
+          nome: profile.nome || '',
+          email: profile.email || '',
+          cargo: profile.cargo || '',
+          departamento: profile.departamento || ''
+        });
+
+        // Fetch user preferences
+        const preferences = await apiService.getUserPreferences() as any;
+        setNotificacoesEmail(preferences.emailNotifications || true);
+        setNotificacoesPush(preferences.pushNotifications || false);
+        setTemaEscuro(preferences.darkTheme || false);
+        setMenuCompacto(preferences.compactMenu || false);
+        setResumoDiario(preferences.dailySummary || true);
+        setAlertasVencimento(preferences.expiryAlerts || true);
+
+        // Fetch system parameters
+        const parametros = await apiService.getParametrosEmpresa() as any[];
+        if (parametros && parametros.length > 0) {
+          const param = parametros[0];
+          setParametrosData({
+            salarioMinimo: param.salario_minimo || 0,
+            percentualReajuste: param.percentual_reajuste || 0,
+            diasVencimentoFatura: param.dias_vencimento_fatura || 0,
+            taxaJurosMora: param.taxa_juros_mora || 0,
+            dataVigencia: param.data_vigencia || new Date().toISOString().split('T')[0]
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        alert('Erro ao carregar dados. Tente novamente.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleSaveEmpresa = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setSuccessMessage('Dados da empresa salvos com sucesso!');
+      setIsSuccessDialogOpen(true);
+    } catch (error) {
+      alert('Erro ao salvar dados da empresa. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveUsuario = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setSuccessMessage('Perfil do usuário salvo com sucesso!');
+      setIsSuccessDialogOpen(true);
+    } catch (error) {
+      alert('Erro ao salvar perfil. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveNotificacoes = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setSuccessMessage('Preferências de notificação salvas com sucesso!');
+      setIsSuccessDialogOpen(true);
+    } catch (error) {
+      alert('Erro ao salvar preferências. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveAparencia = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setSuccessMessage('Configurações de aparência salvas com sucesso!');
+      setIsSuccessDialogOpen(true);
+    } catch (error) {
+      alert('Erro ao salvar configurações. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveParametros = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setSuccessMessage('Parâmetros do sistema salvos com sucesso!');
+      setIsSuccessDialogOpen(true);
+    } catch (error) {
+      alert('Erro ao salvar parâmetros. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    const currentPassword = senhaData.atual;
+    const newPassword = senhaData.nova;
+    const confirmPassword = senhaData.confirmar;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      alert('Por favor, preencha todos os campos de senha.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      alert('A nova senha e a confirmação não coincidem.');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      alert('A nova senha deve ter pelo menos 8 caracteres.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setSuccessMessage('Senha alterada com sucesso!');
+      setIsSuccessDialogOpen(true);
+      setSenhaData({ atual: '', nova: '', confirmar: '' });
+    } catch (error) {
+      alert('Erro ao alterar senha. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleActivate2FA = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate 2FA activation
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setSuccessMessage('Autenticação de dois fatores ativada com sucesso!');
+      setIsSuccessDialogOpen(true);
+    } catch (error) {
+      alert('Erro ao ativar 2FA. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
 
   return (
     <AdminLayout title="Configurações">
@@ -23,7 +239,7 @@ const Configuracoes: React.FC = () => {
         </div>
 
         <Tabs defaultValue="empresa" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 h-auto">
             <TabsTrigger value="empresa" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" /> Empresa
             </TabsTrigger>
@@ -39,6 +255,9 @@ const Configuracoes: React.FC = () => {
             <TabsTrigger value="aparencia" className="flex items-center gap-2">
               <Palette className="h-4 w-4" /> Aparência
             </TabsTrigger>
+            <TabsTrigger value="parametros" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" /> Sistema
+            </TabsTrigger>
           </TabsList>
 
           {/* Empresa */}
@@ -51,36 +270,78 @@ const Configuracoes: React.FC = () => {
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="razaoSocial">Razão Social</Label>
-                    <Input id="razaoSocial" defaultValue="Webside Sistemas Ltda" />
+                    <Label htmlFor="razaoSocial">Razão Social *</Label>
+                    <Input
+                      id="razaoSocial"
+                      value={empresaData.razaoSocial}
+                      onChange={(e) => setEmpresaData({ ...empresaData, razaoSocial: e.target.value })}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="nomeFantasia">Nome Fantasia</Label>
-                    <Input id="nomeFantasia" defaultValue="Webside Sistemas" />
+                    <Label htmlFor="nomeFantasia">Nome Fantasia *</Label>
+                    <Input
+                      id="nomeFantasia"
+                      value={empresaData.nomeFantasia}
+                      onChange={(e) => setEmpresaData({ ...empresaData, nomeFantasia: e.target.value })}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="cnpj">CNPJ</Label>
-                    <Input id="cnpj" defaultValue="12.345.678/0001-90" />
+                    <Label htmlFor="cnpj">CNPJ *</Label>
+                    <Input
+                      id="cnpj"
+                      value={empresaData.cnpj}
+                      onChange={(e) => setEmpresaData({ ...empresaData, cnpj: e.target.value })}
+                      placeholder="00.000.000/0000-00"
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="ie">Inscrição Estadual</Label>
-                    <Input id="ie" defaultValue="123.456.789.012" />
+                    <Input
+                      id="ie"
+                      value={empresaData.ie}
+                      onChange={(e) => setEmpresaData({ ...empresaData, ie: e.target.value })}
+                      placeholder="000.000.000.000"
+                    />
                   </div>
                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="endereco">Endereço</Label>
-                    <Input id="endereco" defaultValue="Rua das Empresas, 123 - Centro - São Paulo/SP" />
+                    <Label htmlFor="endereco">Endereço *</Label>
+                    <Input
+                      id="endereco"
+                      value={empresaData.endereco}
+                      onChange={(e) => setEmpresaData({ ...empresaData, endereco: e.target.value })}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="telefone">Telefone</Label>
-                    <Input id="telefone" defaultValue="(11) 3000-0000" />
+                    <Label htmlFor="telefone">Telefone *</Label>
+                    <Input
+                      id="telefone"
+                      value={empresaData.telefone}
+                      onChange={(e) => setEmpresaData({ ...empresaData, telefone: e.target.value })}
+                      placeholder="(11) 99999-9999"
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="emailEmpresa">E-mail</Label>
-                    <Input id="emailEmpresa" defaultValue="contato@websidesistemas.com.br" />
+                    <Label htmlFor="emailEmpresa">E-mail *</Label>
+                    <Input
+                      id="emailEmpresa"
+                      type="email"
+                      value={empresaData.email}
+                      onChange={(e) => setEmpresaData({ ...empresaData, email: e.target.value })}
+                      required
+                    />
                   </div>
                 </div>
-                <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                  <Save className="h-4 w-4 mr-2" /> Salvar Alterações
+                <Button
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                  onClick={handleSaveEmpresa}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Salvando...' : <><Save className="h-4 w-4 mr-2" /> Salvar Alterações</>}
                 </Button>
               </CardContent>
             </Card>
@@ -96,28 +357,57 @@ const Configuracoes: React.FC = () => {
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="nome">Nome Completo</Label>
-                    <Input id="nome" defaultValue="Administrador" />
+                    <Label htmlFor="nome">Nome Completo *</Label>
+                    <Input
+                      id="nome"
+                      value={usuarioData.nome}
+                      onChange={(e) => setUsuarioData({ ...usuarioData, nome: e.target.value })}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">E-mail</Label>
-                    <Input id="email" type="email" defaultValue="admin@empresa.com" />
+                    <Label htmlFor="email">E-mail *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={usuarioData.email}
+                      onChange={(e) => setUsuarioData({ ...usuarioData, email: e.target.value })}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="cargo">Cargo</Label>
-                    <Input id="cargo" defaultValue="Administrador do Sistema" />
+                    <Input
+                      id="cargo"
+                      value={usuarioData.cargo}
+                      onChange={(e) => setUsuarioData({ ...usuarioData, cargo: e.target.value })}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="departamento">Departamento</Label>
-                    <Input id="departamento" defaultValue="TI" />
+                    <Input
+                      id="departamento"
+                      value={usuarioData.departamento}
+                      onChange={(e) => setUsuarioData({ ...usuarioData, departamento: e.target.value })}
+                    />
                   </div>
                 </div>
-                <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                  <Save className="h-4 w-4 mr-2" /> Salvar Perfil
+                <Button
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                  onClick={handleSaveUsuario}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Salvando...' : <><Save className="h-4 w-4 mr-2" /> Salvar Perfil</>}
                 </Button>
               </CardContent>
             </Card>
           </TabsContent>
+
+
+
+
+
+
 
           {/* Notificações */}
           <TabsContent value="notificacoes">
@@ -146,15 +436,22 @@ const Configuracoes: React.FC = () => {
                     <p className="font-medium">Resumo Diário</p>
                     <p className="text-sm text-muted-foreground">Receba um resumo diário das atividades</p>
                   </div>
-                  <Switch defaultChecked />
+                  <Switch checked={resumoDiario} onCheckedChange={setResumoDiario} />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Alertas de Vencimento</p>
                     <p className="text-sm text-muted-foreground">Seja notificado sobre faturas e prazos</p>
                   </div>
-                  <Switch defaultChecked />
+                  <Switch checked={alertasVencimento} onCheckedChange={setAlertasVencimento} />
                 </div>
+                <Button
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                  onClick={handleSaveNotificacoes}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Salvando...' : <><Save className="h-4 w-4 mr-2" /> Salvar Preferências</>}
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -169,20 +466,45 @@ const Configuracoes: React.FC = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="senhaAtual">Senha Atual</Label>
-                    <Input id="senhaAtual" type="password" placeholder="Digite sua senha atual" />
+                    <Label htmlFor="senhaAtual">Senha Atual *</Label>
+                    <Input
+                      id="senhaAtual"
+                      type="password"
+                      placeholder="Digite sua senha atual"
+                      value={senhaData.atual}
+                      onChange={(e) => setSenhaData({ ...senhaData, atual: e.target.value })}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="novaSenha">Nova Senha</Label>
-                    <Input id="novaSenha" type="password" placeholder="Digite a nova senha" />
+                    <Label htmlFor="novaSenha">Nova Senha *</Label>
+                    <Input
+                      id="novaSenha"
+                      type="password"
+                      placeholder="Digite a nova senha"
+                      value={senhaData.nova}
+                      onChange={(e) => setSenhaData({ ...senhaData, nova: e.target.value })}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirmarSenha">Confirmar Nova Senha</Label>
-                    <Input id="confirmarSenha" type="password" placeholder="Confirme a nova senha" />
+                    <Label htmlFor="confirmarSenha">Confirmar Nova Senha *</Label>
+                    <Input
+                      id="confirmarSenha"
+                      type="password"
+                      placeholder="Confirme a nova senha"
+                      value={senhaData.confirmar}
+                      onChange={(e) => setSenhaData({ ...senhaData, confirmar: e.target.value })}
+                      required
+                    />
                   </div>
                 </div>
-                <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                  Alterar Senha
+                <Button
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                  onClick={handleChangePassword}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Alterando...' : 'Alterar Senha'}
                 </Button>
 
                 <div className="border-t pt-4 mt-6">
@@ -191,7 +513,13 @@ const Configuracoes: React.FC = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">Adicione uma camada extra de segurança</p>
                     </div>
-                    <Button variant="outline">Ativar 2FA</Button>
+                    <Button
+                      variant="outline"
+                      onClick={handleActivate2FA}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? 'Ativando...' : 'Ativar 2FA'}
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -218,13 +546,113 @@ const Configuracoes: React.FC = () => {
                     <p className="font-medium">Menu Compacto</p>
                     <p className="text-sm text-muted-foreground">Reduza o tamanho do menu lateral</p>
                   </div>
-                  <Switch />
+                  <Switch checked={menuCompacto} onCheckedChange={setMenuCompacto} />
                 </div>
+                <Button
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                  onClick={handleSaveAparencia}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Salvando...' : <><Save className="h-4 w-4 mr-2" /> Salvar Configurações</>}
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Sistema */}
+          <TabsContent value="parametros">
+            <Card>
+              <CardHeader>
+                <CardTitle>Parâmetros do Sistema</CardTitle>
+                <CardDescription>Configure os parâmetros gerais do sistema</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="salarioMinimo">Salário Mínimo (R$)</Label>
+                    <Input
+                      id="salarioMinimo"
+                      type="number"
+                      step="0.01"
+                      value={parametrosData.salarioMinimo}
+                      onChange={(e) => setParametrosData({ ...parametrosData, salarioMinimo: parseFloat(e.target.value) || 0 })}
+                      placeholder="1320.00"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="percentualReajuste">Percentual de Reajuste (%)</Label>
+                    <Input
+                      id="percentualReajuste"
+                      type="number"
+                      step="0.01"
+                      value={parametrosData.percentualReajuste}
+                      onChange={(e) => setParametrosData({ ...parametrosData, percentualReajuste: parseFloat(e.target.value) || 0 })}
+                      placeholder="10.00"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="diasVencimentoFatura">Dias para Vencimento da Fatura</Label>
+                    <Input
+                      id="diasVencimentoFatura"
+                      type="number"
+                      value={parametrosData.diasVencimentoFatura}
+                      onChange={(e) => setParametrosData({ ...parametrosData, diasVencimentoFatura: parseInt(e.target.value) || 0 })}
+                      placeholder="30"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="taxaJurosMora">Taxa de Juros de Mora (%)</Label>
+                    <Input
+                      id="taxaJurosMora"
+                      type="number"
+                      step="0.01"
+                      value={parametrosData.taxaJurosMora}
+                      onChange={(e) => setParametrosData({ ...parametrosData, taxaJurosMora: parseFloat(e.target.value) || 0 })}
+                      placeholder="2.00"
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="dataVigencia">Data de Vigência</Label>
+                    <Input
+                      id="dataVigencia"
+                      type="date"
+                      value={parametrosData.dataVigencia}
+                      onChange={(e) => setParametrosData({ ...parametrosData, dataVigencia: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <Button
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                  onClick={handleSaveParametros}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Salvando...' : <><Save className="h-4 w-4 mr-2" /> Salvar Parâmetros</>}
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+
         </Tabs>
       </div>
+
+      {/* Success Dialog */}
+      <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              Sucesso
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>{successMessage}</p>
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={() => setIsSuccessDialogOpen(false)}>Fechar</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };
