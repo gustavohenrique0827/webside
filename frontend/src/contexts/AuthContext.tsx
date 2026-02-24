@@ -1,7 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { apiService } from '@/lib/api';
+import { apolloClient } from '@/lib/apollo';
+import { LOGIN } from '@/graphql/mutations';
 
 interface User {
+  cargo: string;
+  departamento: string;
+  nome_completo: string;
+  tipo_colaborador: string;
   id: number;
   nome: string;
   email: string;
@@ -16,6 +21,7 @@ interface LoginResponse {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
+  setUser: (user: User | null) => void;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
@@ -39,17 +45,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const userData = JSON.parse(savedUser);
           setUser(userData);
           setIsAuthenticated(true);
-          
-          // Optionally verify token is still valid
-          try {
-            const profileData = await apiService.getProfile() as User;
-            setUser(profileData);
-            localStorage.setItem('user', JSON.stringify(profileData));
-          } catch (error) {
-            // Token might be expired, but we'll keep the user logged in
-            // They'll be redirected to login if they try to access protected resources
-            console.log('Token verification failed, but keeping user logged in');
-          }
         } catch (error) {
           // Invalid saved data, clear everything
           localStorage.removeItem('token');
@@ -65,15 +60,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await apiService.login({ email, senha: password }) as LoginResponse;
-      const { token, user: userData } = response;
+      const result = await apolloClient.mutate({
+        mutation: LOGIN,
+        variables: {
+          input: {
+            email,
+            senha: password
+          }
+        }
+      }) as { data?: { login?: LoginResponse } };
+
+      // Check if result or data is null/undefined
+      if (!result || !result.data || !result.data.login) {
+        console.error('Login failed: Invalid response from server');
+        return false;
+      }
+
+      const { token, user: userData } = result.data.login;
+
+      // Map GraphQL response to User interface
+      const mappedUser: User = {
+          id: Number(userData.id),
+          nome: userData.nome_completo,
+          email: userData.email,
+          tipo: userData.tipo_colaborador,
+          nome_completo: '',
+          tipo_colaborador: '',
+          cargo: '',
+          departamento: ''
+      };
 
       // Store token and user data in localStorage
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('user', JSON.stringify(mappedUser));
 
       setIsAuthenticated(true);
-      setUser(userData);
+      setUser(mappedUser);
       return true;
     } catch (error) {
       console.error('Login failed:', error);
@@ -98,7 +120,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, setUser, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

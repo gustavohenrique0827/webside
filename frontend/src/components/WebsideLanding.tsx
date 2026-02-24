@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, Cloud, LineChart, Smartphone, ShieldCheck, Headset, Rocket, Cpu, ChevronRight, Lock, ChevronLeft, ChevronRight as ChevronRightIcon, Facebook, Instagram, Twitter, Linkedin, Loader2 } from "lucide-react";
-import { apiService } from "@/lib/api";
+import { apolloClient } from "@/lib/apollo";
+import { CREATE_LEAD } from "@/graphql/mutations";
 
 const container = {
   hidden: { opacity: 0, y: 20 },
@@ -92,7 +93,19 @@ export default function WebsideLanding() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      await apiService.createLead(formData);
+      await apolloClient.mutate({
+        mutation: CREATE_LEAD,
+        variables: {
+          input: {
+            nome_empresa: formData.company,
+            contato_principal: formData.name,
+            telefone_contato: formData.phone,
+            email_contato: formData.email,
+            fonte_lead: 'Site',
+            observacoes: formData.message
+          }
+        }
+      });
       setIsDemoDialogOpen(false);
       // Reset form
       setFormData({

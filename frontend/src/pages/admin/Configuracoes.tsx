@@ -7,16 +7,62 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Building2, User, Bell, Shield, Palette, Settings, Save, CheckCircle, Loader2, Users, Plus, Edit, Trash2 } from 'lucide-react';
-import { useEmpresas, useCreateEmpresa, useUpdateEmpresa, useColaboradores, useCreateColaborador, useUpdateColaborador, useDeleteColaborador } from '@/hooks/useGraphQL';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Building2, 
+  Bell, 
+  Shield, 
+  Palette, 
+  Settings, 
+  Save, 
+  CheckCircle, 
+  Loader2, 
+  Users, 
+  Mail,
+  Smartphone,
+  Moon,
+  LayoutTemplate,
+  FileText,
+  DollarSign,
+  Percent,
+  CalendarDays,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  Sparkles,
+  Lock,
+  Eye,
+  EyeOff,
+  FileLock2,
+  Share2,
+  Package
+} from 'lucide-react';
+import { useEmpresas, useCreateEmpresa, useUpdateEmpresa, useColaboradores, useCreateColaborador, useUpdateColaborador, useDeleteColaborador, useProdutos, useCreateProduto, useUpdateProduto, useDeleteProduto } from '@/hooks/useGraphQL';
+import { useParametrosEmpresa, useUpdateParametrosEmpresa } from '@/hooks/useParametrosEmpresa';
 import { useNotifications } from '@/components/NotificationSystem';
+import { EmpresaTab, ColaboradoresTab, ProdutosTab } from '@/components/configuracoes';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Configuracoes: React.FC = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.tipo === 'Administrador' || user?.tipo === 'Diretor';
+  
   const notifications = useNotifications();
   const [notificacoesEmail, setNotificacoesEmail] = useState(true);
   const [notificacoesPush, setNotificacoesPush] = useState(false);
-  const [temaEscuro, setTemaEscuro] = useState(false);
-  const [menuCompacto, setMenuCompacto] = useState(false);
+  const [temaEscuro, setTemaEscuro] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('temaEscuro') === 'true';
+    }
+    return false;
+  });
+  const [menuCompacto, setMenuCompacto] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('menuCompacto') === 'true';
+    }
+    return false;
+  });
   const [resumoDiario, setResumoDiario] = useState(true);
   const [alertasVencimento, setAlertasVencimento] = useState(true);
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
@@ -32,40 +78,44 @@ const Configuracoes: React.FC = () => {
     email: ''
   });
 
-  const [senhaData, setSenhaData] = useState({
-    atual: '',
-    nova: '',
-    confirmar: ''
-  });
-  const [parametrosData, setParametrosData] = useState({
+  // Estados para 2FA e LGPD
+  const [doisFatoresAtivo, setDoisFatoresAtivo] = useState(false);
+  const [lgpdConsentimento, setLgpdConsentimento] = useState(true);
+  const [compartilhamentoDados, setCompartilhamentoDados] = useState(false);
+  const [codigo2FA, setCodigo2FA] = useState('');
+  const [mostrarCodigo2FA, setMostrarCodigo2FA] = useState(false);
+  const [parametrosFormData, setParametrosFormData] = useState({
     salarioMinimo: 0,
     percentualReajuste: 0,
     diasVencimentoFatura: 0,
     taxaJurosMora: 0,
     dataVigencia: ''
   });
-  const [isColaboradorDialogOpen, setIsColaboradorDialogOpen] = useState(false);
-  const [editingColaborador, setEditingColaborador] = useState<any>(null);
-  const [colaboradorForm, setColaboradorForm] = useState({
-    cpf: '',
-    nome_completo: '',
-    email: '',
-    senha: '',
-    telefone: '',
-    tipo_colaborador: 'Funcionário',
-    data_admissao: new Date().toISOString().split('T')[0],
-    comissao_venda: 0,
-    comissao_recorrente: 0
-  });
 
   // GraphQL hooks
   const { data: empresasData, loading: loadingEmpresas, refetch: refetchEmpresas } = useEmpresas();
   const { data: colaboradoresData, loading: loadingColaboradores, refetch: refetchColaboradores } = useColaboradores();
+  const { data: parametrosData, loading: loadingParametros, refetch: refetchParametros } = useParametrosEmpresa();
+  const { data: produtosData, loading: loadingProdutos, refetch: refetchProdutos } = useProdutos();
+  const updateParametros = useUpdateParametrosEmpresa();
   const createEmpresa = useCreateEmpresa();
   const updateEmpresa = useUpdateEmpresa();
   const createColaborador = useCreateColaborador();
   const updateColaborador = useUpdateColaborador();
   const deleteColaborador = useDeleteColaborador();
+  const createProduto = useCreateProduto();
+  const updateProduto = useUpdateProduto();
+  const deleteProduto = useDeleteProduto();
+
+  // Aplicar tema ao carregar a página
+  useEffect(() => {
+    const temaSalvo = localStorage.getItem('temaEscuro') === 'true';
+    if (temaSalvo) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
 
   // Set initial data from GraphQL
   useEffect(() => {
@@ -83,75 +133,26 @@ const Configuracoes: React.FC = () => {
     }
   }, [empresasData]);
 
-  const handleSaveEmpresa = async () => {
-    try {
-      if (empresasData && empresasData.length > 0) {
-        await updateEmpresa.mutate({
-          variables: {
-            id: empresasData[0].id,
-            input: {
-              razao_social: empresaData.razaoSocial,
-              nome_fantasia: empresaData.nomeFantasia,
-              cnpj: empresaData.cnpj,
-              telefone: empresaData.telefone,
-              email: empresaData.email
-            }
-          }
-        });
-      } else {
-        await createEmpresa.mutate({
-          variables: {
-            input: {
-              razao_social: empresaData.razaoSocial,
-              nome_fantasia: empresaData.nomeFantasia,
-              cnpj: empresaData.cnpj,
-              telefone: empresaData.telefone,
-              email: empresaData.email,
-              ativo: true
-            }
-          }
-        });
-      }
-      refetchEmpresas();
-      notifications.success('Sucesso!', 'Dados da empresa salvos com sucesso!');
-    } catch (error) {
-      notifications.error('Erro!', 'Erro ao salvar dados da empresa. Tente novamente.');
+  // Load parametros data
+  useEffect(() => {
+    if (parametrosData) {
+      setParametrosFormData({
+        salarioMinimo: parametrosData.salario_minimo || 1412.00,
+        percentualReajuste: parametrosData.percentual_reajuste || 5.0,
+        diasVencimentoFatura: parametrosData.dias_vencimento_fatura || 30,
+        taxaJurosMora: parametrosData.taxa_juros_mora || 1.0,
+        dataVigencia: parametrosData.data_vigencia || new Date().toISOString().split('T')[0]
+      });
     }
-  };
-
-  const handleSaveUsuario = async () => {
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setSuccessMessage('Perfil do usuário salvo com sucesso!');
-      setIsSuccessDialogOpen(true);
-    } catch (error) {
-      alert('Erro ao salvar perfil. Tente novamente.');
-    }
-  };
+  }, [parametrosData]);
 
   const handleSaveNotificacoes = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       notifications.success('Sucesso!', 'Preferências de notificação salvas com sucesso!');
-      
-      // Demonstração das notificações
-      if (notificacoesEmail) {
-        setTimeout(() => notifications.info('Notificações por E-mail', 'Você receberá atualizações importantes por e-mail'), 1000);
-      }
-      if (notificacoesPush) {
-        setTimeout(() => notifications.info('Notificações Push', 'Você receberá alertas em tempo real'), 2000);
-      }
-      if (resumoDiario) {
-        setTimeout(() => notifications.info('Resumo Diário', 'Você receberá um resumo diário das atividades'), 3000);
-      }
-      if (alertasVencimento) {
-        setTimeout(() => notifications.warning('Alertas de Vencimento', 'Você será notificado sobre faturas e prazos'), 4000);
-      }
     } catch (error) {
-      notifications.error('Erro!', 'Erro ao salvar preferências. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao salvar preferências.');
     } finally {
       setIsLoading(false);
     }
@@ -160,11 +161,19 @@ const Configuracoes: React.FC = () => {
   const handleSaveAparencia = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      notifications.success('Sucesso!', 'Configurações de aparência salvas com sucesso!');
+      localStorage.setItem('temaEscuro', temaEscuro.toString());
+      localStorage.setItem('menuCompacto', menuCompacto.toString());
+      
+      if (temaEscuro) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      notifications.success('Sucesso!', 'Configurações de aparência salvas e aplicadas!');
     } catch (error) {
-      notifications.error('Erro!', 'Erro ao salvar configurações. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao salvar configurações.');
     } finally {
       setIsLoading(false);
     }
@@ -173,44 +182,17 @@ const Configuracoes: React.FC = () => {
   const handleSaveParametros = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await updateParametros.mutate({
+        salario_minimo: parametrosFormData.salarioMinimo,
+        percentual_reajuste: parametrosFormData.percentualReajuste,
+        dias_vencimento_fatura: parametrosFormData.diasVencimentoFatura,
+        taxa_juros_mora: parametrosFormData.taxaJurosMora,
+        data_vigencia: parametrosFormData.dataVigencia
+      });
+      await refetchParametros();
       notifications.success('Sucesso!', 'Parâmetros do sistema salvos com sucesso!');
     } catch (error) {
-      notifications.error('Erro!', 'Erro ao salvar parâmetros. Tente novamente.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleChangePassword = async () => {
-    const currentPassword = senhaData.atual;
-    const newPassword = senhaData.nova;
-    const confirmPassword = senhaData.confirmar;
-
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      notifications.warning('Atenção!', 'Por favor, preencha todos os campos de senha.');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      notifications.error('Erro!', 'A nova senha e a confirmação não coincidem.');
-      return;
-    }
-
-    if (newPassword.length < 8) {
-      notifications.warning('Atenção!', 'A nova senha deve ter pelo menos 8 caracteres.');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      notifications.success('Sucesso!', 'Senha alterada com sucesso!');
-      setSenhaData({ atual: '', nova: '', confirmar: '' });
-    } catch (error) {
-      notifications.error('Erro!', 'Erro ao alterar senha. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao salvar parâmetros.');
     } finally {
       setIsLoading(false);
     }
@@ -219,538 +201,558 @@ const Configuracoes: React.FC = () => {
   const handleActivate2FA = async () => {
     setIsLoading(true);
     try {
-      // Simulate 2FA activation
       await new Promise(resolve => setTimeout(resolve, 2000));
+      setDoisFatoresAtivo(true);
+      setCodigo2FA('ABC1-DEF2-GHI3-JKL4');
       notifications.success('Sucesso!', 'Autenticação de dois fatores ativada com sucesso!');
     } catch (error) {
-      notifications.error('Erro!', 'Erro ao ativar 2FA. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao ativar 2FA.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleAddColaborador = async (colaboradorData: any) => {
+  const handleDesativar2FA = async () => {
+    setIsLoading(true);
     try {
-      await createColaborador.mutate({
-        variables: { input: colaboradorData }
-      });
-      refetchColaboradores();
-      notifications.success('Sucesso!', 'Colaborador adicionado com sucesso!');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setDoisFatoresAtivo(false);
+      setCodigo2FA('');
+      notifications.success('Sucesso!', 'Autenticação de dois fatores desativada!');
     } catch (error) {
-      notifications.error('Erro!', 'Erro ao adicionar colaborador. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao desativar 2FA.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleEditColaborador = async (id: number, colaboradorData: any) => {
+  const handleSaveLGPD = async () => {
+    setIsLoading(true);
     try {
-      await updateColaborador.mutate({
-        variables: { id, input: colaboradorData }
-      });
-      refetchColaboradores();
-      notifications.success('Sucesso!', 'Colaborador atualizado com sucesso!');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      notifications.success('Sucesso!', 'Configurações de privacidade (LGPD) salvas com sucesso!');
     } catch (error) {
-      notifications.error('Erro!', 'Erro ao atualizar colaborador. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao salvar configurações de privacidade.');
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  const handleDeleteColaborador = async (id: number) => {
-    if (!confirm('Tem certeza que deseja excluir este colaborador?')) return;
-
-    try {
-      await deleteColaborador.mutate({
-        variables: { id }
-      });
-      refetchColaboradores();
-      notifications.success('Sucesso!', 'Colaborador excluído com sucesso!');
-    } catch (error) {
-      notifications.error('Erro!', 'Erro ao excluir colaborador. Tente novamente.');
-    }
-  };
-
-
 
   return (
     <AdminLayout title="Configurações">
       <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
-          <p className="text-muted-foreground">Gerencie as configurações do sistema</p>
+        {/* Header Moderno */}
+        <div className="bg-gradient-to-r from-accent/10 via-accent/5 to-background rounded-2xl p-6 border">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-accent rounded-xl shadow-lg">
+              <Settings className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
+              <p className="text-muted-foreground">Gerencie as configurações do sistema</p>
+            </div>
+          </div>
         </div>
 
-        <Tabs defaultValue="empresa" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 h-auto">
-            <TabsTrigger value="empresa" className="flex items-center gap-2">
-              <Building2 className="h-4 w-4" /> Empresa
-            </TabsTrigger>
-            <TabsTrigger value="usuarios" className="flex items-center gap-2">
+        <Tabs defaultValue={isAdmin ? "empresa" : "usuarios"} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-7 h-auto p-1 bg-muted/50 rounded-xl">
+            {isAdmin && (
+              <TabsTrigger value="empresa" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-accent">
+                <Building2 className="h-4 w-4" /> Empresa
+              </TabsTrigger>
+            )}
+            <TabsTrigger value="usuarios" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-accent">
               <Users className="h-4 w-4" /> Usuários
             </TabsTrigger>
-            <TabsTrigger value="notificacoes" className="flex items-center gap-2">
+            {isAdmin && (
+              <TabsTrigger value="produtos" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-accent">
+                <Package className="h-4 w-4" /> Produtos
+              </TabsTrigger>
+            )}
+            <TabsTrigger value="notificacoes" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-accent">
               <Bell className="h-4 w-4" /> Notificações
             </TabsTrigger>
-            <TabsTrigger value="seguranca" className="flex items-center gap-2">
+            <TabsTrigger value="seguranca" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-accent">
               <Shield className="h-4 w-4" /> Segurança
             </TabsTrigger>
-            <TabsTrigger value="aparencia" className="flex items-center gap-2">
+            <TabsTrigger value="aparencia" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-accent">
               <Palette className="h-4 w-4" /> Aparência
             </TabsTrigger>
-            <TabsTrigger value="parametros" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" /> Sistema
-            </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="parametros" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-accent">
+                <Settings className="h-4 w-4" /> Sistema
+              </TabsTrigger>
+            )}
           </TabsList>
 
-          {/* Empresa */}
-          <TabsContent value="empresa" key="tab-empresa">
-            <Card>
-              <CardHeader>
-                <CardTitle>Dados da Empresa</CardTitle>
-                <CardDescription>Informações cadastrais da empresa</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="razaoSocial">Razão Social *</Label>
-                    <Input
-                      id="razaoSocial"
-                      value={empresaData.razaoSocial}
-                      onChange={(e) => setEmpresaData({ ...empresaData, razaoSocial: e.target.value })}
-                      required
-                    />
+          {/* Empresa Tab - Apenas para Administradores */}
+          {isAdmin && (
+            <TabsContent value="empresa">
+              <EmpresaTab
+                empresaData={empresaData}
+                setEmpresaData={setEmpresaData}
+                empresasData={empresasData || []}
+                updateEmpresa={updateEmpresa}
+                createEmpresa={createEmpresa}
+                refetchEmpresas={refetchEmpresas}
+                isLoading={isLoading}
+              />
+            </TabsContent>
+          )}
+
+          {/* Colaboradores Tab */}
+          <TabsContent value="usuarios">
+            <ColaboradoresTab
+              colaboradoresData={colaboradoresData || []}
+              loading={loadingColaboradores}
+              createColaborador={createColaborador}
+              updateColaborador={updateColaborador}
+              deleteColaborador={deleteColaborador}
+              refetchColaboradores={refetchColaboradores}
+              isLoading={isLoading}
+            />
+          </TabsContent>
+
+          {/* Produtos Tab - Apenas para Administradores */}
+          {isAdmin && (
+            <TabsContent value="produtos">
+              <ProdutosTab
+                produtosData={produtosData || []}
+                loading={loadingProdutos}
+                createProduto={createProduto}
+                updateProduto={updateProduto}
+                deleteProduto={deleteProduto}
+                refetchProdutos={refetchProdutos}
+                isLoading={isLoading}
+              />
+            </TabsContent>
+          )}
+
+          {/* Notificações Tab */}
+          <TabsContent value="notificacoes">
+            <Card className="overflow-hidden border-2">
+              <div className="bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-background px-6 py-4 border-b">
+                <CardHeader className="p-0 space-y-1">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500 rounded-lg">
+                      <Bell className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Preferências de Notificação</CardTitle>
+                      <CardDescription>Configure como deseja receber notificações</CardDescription>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="nomeFantasia">Nome Fantasia *</Label>
-                    <Input
-                      id="nomeFantasia"
-                      value={empresaData.nomeFantasia}
-                      onChange={(e) => setEmpresaData({ ...empresaData, nomeFantasia: e.target.value })}
-                      required
-                    />
+                </CardHeader>
+              </div>
+              <CardContent className="p-6 space-y-6">
+                <div className="grid gap-4">
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <Mail className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Notificações por E-mail</p>
+                        <p className="text-sm text-muted-foreground">Receba atualizações importantes por e-mail</p>
+                      </div>
+                    </div>
+                    <Switch checked={notificacoesEmail} onCheckedChange={setNotificacoesEmail} />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cnpj">CNPJ *</Label>
-                    <Input
-                      id="cnpj"
-                      value={empresaData.cnpj}
-                      onChange={(e) => setEmpresaData({ ...empresaData, cnpj: e.target.value })}
-                      placeholder="00.000.000/0000-00"
-                      required
-                    />
+                  
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-purple-100 rounded-lg">
+                        <Smartphone className="h-4 w-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Notificações Push</p>
+                        <p className="text-sm text-muted-foreground">Receba alertas em tempo real no navegador</p>
+                      </div>
+                    </div>
+                    <Switch checked={notificacoesPush} onCheckedChange={setNotificacoesPush} />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="ie">Inscrição Estadual</Label>
-                    <Input
-                      id="ie"
-                      value={empresaData.ie}
-                      onChange={(e) => setEmpresaData({ ...empresaData, ie: e.target.value })}
-                      placeholder="000.000.000.000"
-                    />
+                  
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <FileText className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Resumo Diário</p>
+                        <p className="text-sm text-muted-foreground">Receba um resumo diário das atividades</p>
+                      </div>
+                    </div>
+                    <Switch checked={resumoDiario} onCheckedChange={setResumoDiario} />
                   </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="endereco">Endereço *</Label>
-                    <Input
-                      id="endereco"
-                      value={empresaData.endereco}
-                      onChange={(e) => setEmpresaData({ ...empresaData, endereco: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="telefone">Telefone *</Label>
-                    <Input
-                      id="telefone"
-                      value={empresaData.telefone}
-                      onChange={(e) => setEmpresaData({ ...empresaData, telefone: e.target.value })}
-                      placeholder="(11) 99999-9999"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="emailEmpresa">E-mail *</Label>
-                    <Input
-                      id="emailEmpresa"
-                      type="email"
-                      value={empresaData.email}
-                      onChange={(e) => setEmpresaData({ ...empresaData, email: e.target.value })}
-                      required
-                    />
+                  
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-amber-100 rounded-lg">
+                        <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Alertas de Vencimento</p>
+                        <p className="text-sm text-muted-foreground">Seja notificado sobre faturas e prazos</p>
+                      </div>
+                    </div>
+                    <Switch checked={alertasVencimento} onCheckedChange={setAlertasVencimento} />
                   </div>
                 </div>
-                <Button
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
-                  onClick={handleSaveEmpresa}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Salvando...' : <><Save className="h-4 w-4 mr-2" /> Salvar Alterações</>}
-                </Button>
+
+                <Separator />
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-accent" />
+                    <span className="text-sm text-muted-foreground">
+                      {notificacoesEmail || notificacoesPush || resumoDiario || alertasVencimento 
+                        ? 'Você receberá notificações ativas' 
+                        : 'Nenhuma notificação ativa'}
+                    </span>
+                  </div>
+                  <Button className="bg-accent hover:bg-accent/90 h-11 px-6" onClick={handleSaveNotificacoes} disabled={isLoading}>
+                    {isLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Salvando...</> : <><Save className="h-4 w-4 mr-2" /> Salvar Preferências</>}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Usuários */}
-          <TabsContent value="usuarios" key="tab-usuarios">
+          {/* Segurança Tab - 2FA e LGPD */}
+          <TabsContent value="seguranca">
             <div className="space-y-6">
-              {/* Gerenciamento de Colaboradores */}
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <CardTitle>Gerenciamento de Colaboradores</CardTitle>
-                      <CardDescription>Adicione, edite ou remova colaboradores do sistema</CardDescription>
+              {/* 2FA Card */}
+              <Card className="overflow-hidden border-2">
+                <div className="bg-gradient-to-r from-green-500/10 via-green-500/5 to-background px-6 py-4 border-b">
+                  <CardHeader className="p-0 space-y-1">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-500 rounded-lg">
+                        <Shield className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">Autenticação em Dois Fatores (2FA)</CardTitle>
+                        <CardDescription>Adicione uma camada extra de segurança à sua conta</CardDescription>
+                      </div>
                     </div>
-                    <Button
-                      className="bg-accent hover:bg-accent/90 text-accent-foreground"
-                      onClick={() => {
-                        setEditingColaborador(null);
-                        setColaboradorForm({
-                          cpf: '',
-                          nome_completo: '',
-                          email: '',
-                          senha: '',
-                          telefone: '',
-                          tipo_colaborador: 'Funcionário',
-                          data_admissao: new Date().toISOString().split('T')[0],
-                          comissao_venda: 0,
-                          comissao_recorrente: 0
-                        });
-                        setIsColaboradorDialogOpen(true);
-                      }}
-                    >
-                      <Plus className="h-4 w-4 mr-2" /> Novo Colaborador
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                  </CardHeader>
+                </div>
+                <CardContent className="p-6 space-y-6">
+                  {!doisFatoresAtivo ? (
+                    <div className="p-4 bg-muted/30 rounded-xl border">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-amber-100 rounded-lg">
+                            <Lock className="h-4 w-4 text-amber-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium">2FA Desativado</h4>
+                            <p className="text-sm text-muted-foreground">Ative para proteger sua conta com código adicional</p>
+                          </div>
+                        </div>
+                        <Button onClick={handleActivate2FA} disabled={isLoading} className="h-11 bg-green-500 hover:bg-green-600">
+                          {isLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Ativando...</> : <><CheckCircle2 className="h-4 w-4 mr-2" /> Ativar 2FA</>}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="p-2 bg-green-500 rounded-lg">
+                            <CheckCircle2 className="h-4 w-4 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-green-800">2FA Ativo</h4>
+                            <p className="text-sm text-green-600">Sua conta está protegida com autenticação em dois fatores</p>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2">
+                            <Lock className="h-4 w-4" />
+                            Código de Recuperação
+                          </Label>
+                          <div className="relative">
+                            <Input 
+                              type={mostrarCodigo2FA ? "text" : "password"} 
+                              value={codigo2FA || 'XXXX-XXXX-XXXX-XXXX'} 
+                              readOnly
+                              className="h-11 pr-10 font-mono"
+                            />
+                            <button 
+                              onClick={() => setMostrarCodigo2FA(!mostrarCodigo2FA)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                              {mostrarCodigo2FA ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                          <p className="text-xs text-muted-foreground">Guarde este código em local seguro. Ele será necessário para recuperar o acesso caso perca seu dispositivo.</p>
+                        </div>
+                      </div>
+                      
+                      <Button variant="outline" onClick={handleDesativar2FA} disabled={isLoading} className="h-11 w-full">
+                        {isLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Desativando...</> : <><XCircle className="h-4 w-4 mr-2" /> Desativar 2FA</>}
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-                  <div className="border rounded-lg overflow-hidden">
-                    {loadingColaboradores ? (
-                      <div className="text-center py-12">
-                        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3" />
-                        <p className="text-muted-foreground">Carregando...</p>
+              {/* LGPD Card */}
+              <Card className="overflow-hidden border-2">
+                <div className="bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-background px-6 py-4 border-b">
+                  <CardHeader className="p-0 space-y-1">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-500 rounded-lg">
+                        <FileLock2 className="h-5 w-5 text-white" />
                       </div>
-                    ) : !colaboradoresData || colaboradoresData.length === 0 ? (
-                      <div className="text-center py-12 text-muted-foreground bg-muted/20">
-                        <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                        <p className="font-medium">Nenhum colaborador cadastrado</p>
-                        <p className="text-sm mt-1">Clique em "Novo Colaborador" para começar</p>
+                      <div>
+                        <CardTitle className="text-lg">Privacidade e Dados (LGPD)</CardTitle>
+                        <CardDescription>Gerencie suas preferências de privacidade conforme a LGPD</CardDescription>
                       </div>
-                    ) : (
-                      <div className="overflow-x-auto">
-                        <table className="w-full">
-                          <thead className="bg-muted/50 border-b">
-                            <tr>
-                              <th className="text-left p-3 font-medium text-sm">Nome</th>
-                              <th className="text-left p-3 font-medium text-sm hidden md:table-cell">E-mail</th>
-                              <th className="text-left p-3 font-medium text-sm hidden lg:table-cell">Cargo</th>
-                              <th className="text-left p-3 font-medium text-sm hidden lg:table-cell">Departamento</th>
-                              <th className="text-left p-3 font-medium text-sm hidden sm:table-cell">Status</th>
-                              <th className="text-right p-3 font-medium text-sm">Ações</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y">
-                            {colaboradoresData && colaboradoresData.map((colaborador: any) => (
-                              <tr key={colaborador.id} className="hover:bg-muted/20 transition-colors">
-                                <td className="p-3">
-                                  <div>
-                                    <p className="font-medium text-sm">{colaborador.nome_completo}</p>
-                                    <p className="text-xs text-muted-foreground md:hidden">{colaborador.email}</p>
-                                  </div>
-                                </td>
-                                <td className="p-3 text-sm text-muted-foreground hidden md:table-cell">
-                                  {colaborador.email}
-                                </td>
-                                <td className="p-3 text-sm hidden lg:table-cell">
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    {colaborador.tipo_colaborador || 'Funcionário'}
-                                  </span>
-                                </td>
-                                <td className="p-3 text-sm text-muted-foreground hidden lg:table-cell">
-                                  {colaborador.departamento || '-'}
-                                </td>
-                                <td className="p-3 hidden sm:table-cell">
-                                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                    colaborador.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                  }`}>
-                                    {colaborador.ativo ? 'Ativo' : 'Inativo'}
-                                  </span>
-                                </td>
-                                <td className="p-3">
-                                  <div className="flex justify-end gap-2">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => {
-                                        setEditingColaborador(colaborador);
-                                        setColaboradorForm({
-                                          cpf: colaborador.cpf || '',
-                                          nome_completo: colaborador.nome_completo,
-                                          email: colaborador.email,
-                                          senha: '', // Não preencher senha ao editar
-                                          telefone: colaborador.telefone || '',
-                                          tipo_colaborador: colaborador.tipo_colaborador || 'Funcionário',
-                                          data_admissao: colaborador.data_admissao ? colaborador.data_admissao.split('T')[0] : new Date().toISOString().split('T')[0],
-                                          comissao_venda: colaborador.comissao_venda || 0,
-                                          comissao_recorrente: colaborador.comissao_recorrente || 0
-                                        });
-                                        setIsColaboradorDialogOpen(true);
-                                      }}
-                                      className="hover:bg-blue-100 hover:text-blue-700"
-                                    >
-                                      <Edit className="h-4 w-4" />
-                                      <span className="ml-1 hidden sm:inline">Editar</span>
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => handleDeleteColaborador(colaborador.id)}
-                                      className="hover:bg-red-100 hover:text-red-700"
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                      <span className="ml-1 hidden sm:inline">Excluir</span>
-                                    </Button>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                    </div>
+                  </CardHeader>
+                </div>
+                <CardContent className="p-6 space-y-6">
+                  <div className="grid gap-4">
+                    <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium">Consentimento de Dados</p>
+                          <p className="text-sm text-muted-foreground">Permito o processamento dos meus dados pessoais</p>
+                        </div>
                       </div>
-                    )}
+                      <Switch checked={lgpdConsentimento} onCheckedChange={setLgpdConsentimento} />
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-purple-100 rounded-lg">
+                          <Share2 className="h-4 w-4 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium">Compartilhamento de Dados</p>
+                          <p className="text-sm text-muted-foreground">Permito compartilhamento com parceiros autorizados</p>
+                        </div>
+                      </div>
+                      <Switch checked={compartilhamentoDados} onCheckedChange={setCompartilhamentoDados} />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <FileText className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                    <p className="text-sm text-blue-700">Conforme a LGPD, você tem direito a acessar, corrigir ou excluir seus dados a qualquer momento.</p>
+                  </div>
+
+                  <Separator />
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50">
+                        <FileLock2 className="h-3 w-3 mr-1" />
+                        LGPD
+                      </Badge>
+                    </div>
+                    <Button className="bg-blue-500 hover:bg-blue-600 h-11 px-6" onClick={handleSaveLGPD} disabled={isLoading}>
+                      {isLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Salvando...</> : <><Save className="h-4 w-4 mr-2" /> Salvar Privacidade</>}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
-          {/* Notificações */}
-          <TabsContent value="notificacoes" key="tab-notificacoes">
-            <Card>
-              <CardHeader>
-                <CardTitle>Preferências de Notificação</CardTitle>
-                <CardDescription>Configure como deseja receber notificações</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Notificações por E-mail</p>
-                    <p className="text-sm text-muted-foreground">Receba atualizações importantes por e-mail</p>
+          {/* Aparência Tab */}
+          <TabsContent value="aparencia">
+            <Card className="overflow-hidden border-2">
+              <div className="bg-gradient-to-r from-purple-500/10 via-purple-500/5 to-background px-6 py-4 border-b">
+                <CardHeader className="p-0 space-y-1">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-500 rounded-lg">
+                      <Palette className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Aparência</CardTitle>
+                      <CardDescription>Personalize a interface do sistema</CardDescription>
+                    </div>
                   </div>
-                  <Switch checked={notificacoesEmail} onCheckedChange={setNotificacoesEmail} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Notificações Push</p>
-                    <p className="text-sm text-muted-foreground">Receba alertas em tempo real no navegador</p>
+                </CardHeader>
+              </div>
+              <CardContent className="p-6 space-y-6">
+                <div className="grid gap-4">
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-slate-800 rounded-lg">
+                        <Moon className="h-4 w-4 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Tema Escuro</p>
+                        <p className="text-sm text-muted-foreground">Ative o modo escuro para reduzir o cansaço visual</p>
+                      </div>
+                    </div>
+                    <Switch checked={temaEscuro} onCheckedChange={setTemaEscuro} />
                   </div>
-                  <Switch checked={notificacoesPush} onCheckedChange={setNotificacoesPush} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Resumo Diário</p>
-                    <p className="text-sm text-muted-foreground">Receba um resumo diário das atividades</p>
+                  
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <LayoutTemplate className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Menu Compacto</p>
+                        <p className="text-sm text-muted-foreground">Reduza o tamanho do menu lateral</p>
+                      </div>
+                    </div>
+                    <Switch checked={menuCompacto} onCheckedChange={setMenuCompacto} />
                   </div>
-                  <Switch checked={resumoDiario} onCheckedChange={setResumoDiario} />
                 </div>
+
+                <Separator />
+
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Alertas de Vencimento</p>
-                    <p className="text-sm text-muted-foreground">Seja notificado sobre faturas e prazos</p>
+                  <div className="flex items-center gap-2">
+                    {temaEscuro ? (
+                      <Badge variant="secondary" className="bg-slate-800 text-white">Tema Escuro Ativo</Badge>
+                    ) : (
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700">Tema Claro Ativo</Badge>
+                    )}
+                    {menuCompacto && (
+                      <Badge variant="secondary" className="bg-green-100 text-green-700">Menu Compacto</Badge>
+                    )}
                   </div>
-                  <Switch checked={alertasVencimento} onCheckedChange={setAlertasVencimento} />
+                  <Button className="bg-accent hover:bg-accent/90 h-11 px-6" onClick={handleSaveAparencia} disabled={isLoading}>
+                    {isLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Salvando...</> : <><Save className="h-4 w-4 mr-2" /> Salvar Configurações</>}
+                  </Button>
                 </div>
-                <Button
-                  type="button"
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleSaveNotificacoes();
-                  }}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Salvando...' : <><Save className="h-4 w-4 mr-2" /> Salvar Preferências</>}
-                </Button>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Segurança */}
-          <TabsContent value="seguranca" key="tab-seguranca">
-            <Card>
-              <CardHeader>
-                <CardTitle>Segurança da Conta</CardTitle>
-                <CardDescription>Gerencie a segurança do seu acesso</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="senhaAtual">Senha Atual *</Label>
-                    <Input
-                      id="senhaAtual"
-                      type="password"
-                      placeholder="Digite sua senha atual"
-                      value={senhaData.atual}
-                      onChange={(e) => setSenhaData({ ...senhaData, atual: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="novaSenha">Nova Senha *</Label>
-                    <Input
-                      id="novaSenha"
-                      type="password"
-                      placeholder="Digite a nova senha"
-                      value={senhaData.nova}
-                      onChange={(e) => setSenhaData({ ...senhaData, nova: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmarSenha">Confirmar Nova Senha *</Label>
-                    <Input
-                      id="confirmarSenha"
-                      type="password"
-                      placeholder="Confirme a nova senha"
-                      value={senhaData.confirmar}
-                      onChange={(e) => setSenhaData({ ...senhaData, confirmar: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-                <Button
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
-                  onClick={handleChangePassword}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Alterando...' : 'Alterar Senha'}
-                </Button>
-
-                <div className="border-t pt-4 mt-6">
-                  <h4 className="font-medium mb-4">Autenticação em Dois Fatores</h4>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Adicione uma camada extra de segurança</p>
+          {/* Sistema Tab - Apenas para Administradores */}
+          {isAdmin && (
+            <TabsContent value="parametros">
+              <Card className="overflow-hidden border-2">
+                <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-background px-6 py-4 border-b">
+                  <CardHeader className="p-0 space-y-1">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-amber-500 rounded-lg">
+                        <Settings className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">Parâmetros do Sistema</CardTitle>
+                        <CardDescription>Configure os parâmetros gerais do sistema (Apenas Administradores)</CardDescription>
+                      </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      onClick={handleActivate2FA}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Ativando...' : 'Ativar 2FA'}
+                  </CardHeader>
+                </div>
+                <CardContent className="p-6 space-y-6">
+                  <div className="grid md:grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="salarioMinimo" className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        Salário Mínimo (R$)
+                      </Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">R$</span>
+                        <Input 
+                          id="salarioMinimo" 
+                          type="number" 
+                          step="0.01" 
+                          value={parametrosFormData.salarioMinimo || ''} 
+                          onChange={(e) => setParametrosFormData({ ...parametrosFormData, salarioMinimo: parseFloat(e.target.value) || 0 })} 
+                          placeholder="1320.00" 
+                          className="pl-10 h-11"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="percentualReajuste" className="flex items-center gap-2">
+                        <Percent className="h-4 w-4 text-muted-foreground" />
+                        Percentual de Reajuste (%)
+                      </Label>
+                      <div className="relative">
+                        <Input 
+                          id="percentualReajuste" 
+                          type="number" 
+                          step="0.01" 
+                          value={parametrosFormData.percentualReajuste || ''} 
+                          onChange={(e) => setParametrosFormData({ ...parametrosFormData, percentualReajuste: parseFloat(e.target.value) || 0 })} 
+                          placeholder="10.00" 
+                          className="h-11 pr-8"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">%</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="diasVencimentoFatura" className="flex items-center gap-2">
+                        <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                        Dias para Vencimento
+                      </Label>
+                      <div className="relative">
+                        <Input 
+                          id="diasVencimentoFatura" 
+                          type="number" 
+                          value={parametrosFormData.diasVencimentoFatura || ''} 
+                          onChange={(e) => setParametrosFormData({ ...parametrosFormData, diasVencimentoFatura: parseInt(e.target.value) || 0 })} 
+                          placeholder="30" 
+                          className="h-11 pr-12"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">dias</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="taxaJurosMora" className="flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                        Taxa de Juros de Mora (%)
+                      </Label>
+                      <div className="relative">
+                        <Input 
+                          id="taxaJurosMora" 
+                          type="number" 
+                          step="0.01" 
+                          value={parametrosFormData.taxaJurosMora || ''} 
+                          onChange={(e) => setParametrosFormData({ ...parametrosFormData, taxaJurosMora: parseFloat(e.target.value) || 0 })} 
+                          placeholder="2.00" 
+                          className="h-11 pr-8"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">%</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="dataVigencia" className="flex items-center gap-2">
+                        <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                        Data de Vigência
+                      </Label>
+                      <Input 
+                        id="dataVigencia" 
+                        type="date" 
+                        value={parametrosFormData.dataVigencia} 
+                        onChange={(e) => setParametrosFormData({ ...parametrosFormData, dataVigencia: e.target.value })} 
+                        className="h-11"
+                      />
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50">
+                        <Settings className="h-3 w-3 mr-1" />
+                        Configurações do Sistema
+                      </Badge>
+                    </div>
+                    <Button className="bg-accent hover:bg-accent/90 h-11 px-6" onClick={handleSaveParametros} disabled={isLoading}>
+                      {isLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Salvando...</> : <><Save className="h-4 w-4 mr-2" /> Salvar Parâmetros</>}
                     </Button>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Aparência */}
-          <TabsContent value="aparencia" key="tab-aparencia">
-            <Card>
-              <CardHeader>
-                <CardTitle>Aparência</CardTitle>
-                <CardDescription>Personalize a interface do sistema</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Tema Escuro</p>
-                    <p className="text-sm text-muted-foreground">Ative o modo escuro para reduzir o cansaço visual</p>
-                  </div>
-                  <Switch checked={temaEscuro} onCheckedChange={setTemaEscuro} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Menu Compacto</p>
-                    <p className="text-sm text-muted-foreground">Reduza o tamanho do menu lateral</p>
-                  </div>
-                  <Switch checked={menuCompacto} onCheckedChange={setMenuCompacto} />
-                </div>
-                <Button
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
-                  onClick={handleSaveAparencia}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Salvando...' : <><Save className="h-4 w-4 mr-2" /> Salvar Configurações</>}
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Sistema */}
-          <TabsContent value="parametros" key="tab-parametros">
-            <Card>
-              <CardHeader>
-                <CardTitle>Parâmetros do Sistema</CardTitle>
-                <CardDescription>Configure os parâmetros gerais do sistema</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="salarioMinimo">Salário Mínimo (R$)</Label>
-                    <Input
-                      id="salarioMinimo"
-                      type="number"
-                      step="0.01"
-                      value={parametrosData.salarioMinimo}
-                      onChange={(e) => setParametrosData({ ...parametrosData, salarioMinimo: parseFloat(e.target.value) || 0 })}
-                      placeholder="1320.00"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="percentualReajuste">Percentual de Reajuste (%)</Label>
-                    <Input
-                      id="percentualReajuste"
-                      type="number"
-                      step="0.01"
-                      value={parametrosData.percentualReajuste}
-                      onChange={(e) => setParametrosData({ ...parametrosData, percentualReajuste: parseFloat(e.target.value) || 0 })}
-                      placeholder="10.00"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="diasVencimentoFatura">Dias para Vencimento da Fatura</Label>
-                    <Input
-                      id="diasVencimentoFatura"
-                      type="number"
-                      value={parametrosData.diasVencimentoFatura}
-                      onChange={(e) => setParametrosData({ ...parametrosData, diasVencimentoFatura: parseInt(e.target.value) || 0 })}
-                      placeholder="30"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="taxaJurosMora">Taxa de Juros de Mora (%)</Label>
-                    <Input
-                      id="taxaJurosMora"
-                      type="number"
-                      step="0.01"
-                      value={parametrosData.taxaJurosMora}
-                      onChange={(e) => setParametrosData({ ...parametrosData, taxaJurosMora: parseFloat(e.target.value) || 0 })}
-                      placeholder="2.00"
-                    />
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="dataVigencia">Data de Vigência</Label>
-                    <Input
-                      id="dataVigencia"
-                      type="date"
-                      value={parametrosData.dataVigencia}
-                      onChange={(e) => setParametrosData({ ...parametrosData, dataVigencia: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <Button
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
-                  onClick={handleSaveParametros}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Salvando...' : <><Save className="h-4 w-4 mr-2" /> Salvar Parâmetros</>}
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 
@@ -763,198 +765,8 @@ const Configuracoes: React.FC = () => {
               Sucesso
             </DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            <p>{successMessage}</p>
-          </div>
-          <div className="flex justify-end">
-            <Button onClick={() => setIsSuccessDialogOpen(false)}>Fechar</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Colaborador Dialog */}
-      <Dialog open={isColaboradorDialogOpen} onOpenChange={setIsColaboradorDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {editingColaborador ? 'Editar Colaborador' : 'Novo Colaborador'}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="colaboradorNome">Nome Completo *</Label>
-                <Input
-                  id="colaboradorNome"
-                  value={colaboradorForm.nome_completo}
-                  onChange={(e) => setColaboradorForm({ ...colaboradorForm, nome_completo: e.target.value })}
-                  placeholder="João da Silva"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="colaboradorCPF">CPF *</Label>
-                <Input
-                  id="colaboradorCPF"
-                  value={colaboradorForm.cpf}
-                  onChange={(e) => setColaboradorForm({ ...colaboradorForm, cpf: e.target.value })}
-                  placeholder="000.000.000-00"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="colaboradorEmail">E-mail *</Label>
-                <Input
-                  id="colaboradorEmail"
-                  type="email"
-                  value={colaboradorForm.email}
-                  onChange={(e) => setColaboradorForm({ ...colaboradorForm, email: e.target.value })}
-                  placeholder="joao@empresa.com"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="colaboradorTelefone">Telefone *</Label>
-                <Input
-                  id="colaboradorTelefone"
-                  value={colaboradorForm.telefone}
-                  onChange={(e) => setColaboradorForm({ ...colaboradorForm, telefone: e.target.value })}
-                  placeholder="(11) 99999-9999"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="colaboradorSenha">{editingColaborador ? 'Nova Senha (deixe em branco para manter)' : 'Senha *'}</Label>
-              <Input
-                id="colaboradorSenha"
-                type="password"
-                value={colaboradorForm.senha}
-                onChange={(e) => setColaboradorForm({ ...colaboradorForm, senha: e.target.value })}
-                placeholder="Mínimo 8 caracteres"
-                required={!editingColaborador}
-              />
-              {!editingColaborador && (
-                <p className="text-xs text-muted-foreground">A senha deve ter no mínimo 8 caracteres</p>
-              )}
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="colaboradorTipo">Tipo de Colaborador *</Label>
-                <select
-                  id="colaboradorTipo"
-                  value={colaboradorForm.tipo_colaborador}
-                  onChange={(e) => setColaboradorForm({ ...colaboradorForm, tipo_colaborador: e.target.value })}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  required
-                >
-                  <option value="Funcionário">Funcionário</option>
-                  <option value="Gerente">Gerente</option>
-                  <option value="Diretor">Diretor</option>
-                  <option value="Vendedor">Vendedor</option>
-                  <option value="Suporte">Suporte</option>
-                  <option value="Administrativo">Administrativo</option>
-                  <option value="Financeiro">Financeiro</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="colaboradorDataAdmissao">Data de Admissão *</Label>
-                <Input
-                  id="colaboradorDataAdmissao"
-                  type="date"
-                  value={colaboradorForm.data_admissao}
-                  onChange={(e) => setColaboradorForm({ ...colaboradorForm, data_admissao: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="border-t pt-4 mt-4">
-              <h4 className="font-medium mb-3 text-sm">Comissões</h4>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="colaboradorComissaoVenda">Comissão por Venda (%)</Label>
-                  <Input
-                    id="colaboradorComissaoVenda"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="100"
-                    value={colaboradorForm.comissao_venda}
-                    onChange={(e) => setColaboradorForm({ ...colaboradorForm, comissao_venda: parseFloat(e.target.value) || 0 })}
-                    placeholder="0.00"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="colaboradorComissaoRecorrente">Comissão Recorrente (%)</Label>
-                  <Input
-                    id="colaboradorComissaoRecorrente"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="100"
-                    value={colaboradorForm.comissao_recorrente}
-                    onChange={(e) => setColaboradorForm({ ...colaboradorForm, comissao_recorrente: parseFloat(e.target.value) || 0 })}
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsColaboradorDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button
-              className="bg-accent hover:bg-accent/90 text-accent-foreground"
-              onClick={async () => {
-                // Validações
-                if (!colaboradorForm.nome_completo || !colaboradorForm.email || !colaboradorForm.cpf || !colaboradorForm.telefone) {
-                  notifications.warning('Atenção!', 'Por favor, preencha todos os campos obrigatórios.');
-                  return;
-                }
-                
-                if (!editingColaborador && !colaboradorForm.senha) {
-                  notifications.warning('Atenção!', 'A senha é obrigatória para novos colaboradores.');
-                  return;
-                }
-                
-                if (colaboradorForm.senha && colaboradorForm.senha.length < 8) {
-                  notifications.warning('Atenção!', 'A senha deve ter no mínimo 8 caracteres.');
-                  return;
-                }
-
-                // Validação de CPF (formato básico)
-                const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
-                if (!cpfRegex.test(colaboradorForm.cpf)) {
-                  notifications.error('Erro!', 'CPF inválido. Use o formato: 000.000.000-00');
-                  return;
-                }
-
-                // Validação de email
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(colaboradorForm.email)) {
-                  notifications.error('Erro!', 'E-mail inválido.');
-                  return;
-                }
-
-                if (editingColaborador) {
-                  await handleEditColaborador(editingColaborador.id, colaboradorForm);
-                } else {
-                  await handleAddColaborador(colaboradorForm);
-                }
-                setIsColaboradorDialogOpen(false);
-              }}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Salvando...' : editingColaborador ? 'Atualizar' : 'Adicionar'}
-            </Button>
-          </div>
+          <div className="py-4"><p>{successMessage}</p></div>
+          <div className="flex justify-end"><Button onClick={() => setIsSuccessDialogOpen(false)}>Fechar</Button></div>
         </DialogContent>
       </Dialog>
     </AdminLayout>

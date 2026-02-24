@@ -2,12 +2,28 @@
 import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client/core';
 import { setContext } from '@apollo/client/link/context';
 
+// Determine the GraphQL URL based on environment
+// In development (npm run dev): uses Vite proxy to forward /graphql to localhost:3000
+// In production (Docker): nginx proxies /graphql to backend:3000
+const getGraphQLUrl = () => {
+  // If explicitly set via env var, use it
+  if (import.meta.env.VITE_GRAPHQL_URL) {
+    return import.meta.env.VITE_GRAPHQL_URL;
+  }
+  // Use relative path - works with both Vite proxy (dev) and nginx (production)
+  return '/graphql';
+};
+
 const httpLink = createHttpLink({
-  uri: import.meta.env.VITE_GRAPHQL_URL || '/graphql',
+  uri: getGraphQLUrl(),
 });
+
+// Debug logging
+console.log('GraphQL URL:', getGraphQLUrl());
 
 const authLink = setContext((_, { headers }) => {
   const token = localStorage.getItem('token');
+  console.log('Auth token:', token ? 'Present' : 'None');
   return {
     headers: {
       ...headers,
@@ -84,6 +100,9 @@ export const apolloClient = new ApolloClient({
   defaultOptions: {
     watchQuery: {
       fetchPolicy: 'cache-and-network',
+    },
+    mutate: {
+      errorPolicy: 'all',
     },
   },
 });

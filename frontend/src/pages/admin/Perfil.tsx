@@ -30,7 +30,7 @@ const Perfil: React.FC = () => {
   });
 
   // GraphQL hooks
-  const { data: profile, loading, refetch } = useProfile();
+  const { user: profile, loading, refetch } = useProfile();
   const updateProfile = useUpdateProfile();
 
   useEffect(() => {

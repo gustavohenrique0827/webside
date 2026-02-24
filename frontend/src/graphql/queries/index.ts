@@ -9,6 +9,7 @@ export const LEAD_FRAGMENT = gql`
     contato_principal
     email_contato
     telefone_contato
+    telefone_whatsapp
     fonte_lead
     probabilidade
     valor_estimado
@@ -37,6 +38,9 @@ export const CLIENTE_FRAGMENT = gql`
     status_cor
     empresa_nome
     responsavel
+    telefone_whatsapp
+    telefone_financeiro
+    email_financeiro
   }
 `;
 
@@ -84,7 +88,66 @@ export const ORCAMENTO_FRAGMENT = gql`
     status_nome
     status_cor
     cliente_nome
+    lead_nome
+    vendedor
+    empresa_nome
   }
+`;
+
+export const ORCAMENTO_ITEM_FRAGMENT = gql`
+  fragment OrcamentoItemFields on OrcamentoItem {
+    id
+    id_produto
+    produto_nome
+    codigo_produto
+    descricao_item
+    quantidade
+    valor_unitario
+    desconto_percentual
+    desconto_valor
+    valor_total
+    ordem
+  }
+`;
+
+export const ORCAMENTO_FULL_FRAGMENT = gql`
+  fragment OrcamentoFullFields on Orcamento {
+    id
+    numero_orcamento
+    valor_total
+    validade_dias
+    observacoes
+    data_criacao
+    data_aprovacao
+    data_validade
+    status_nome
+    status_cor
+    cliente_nome
+    lead_nome
+    vendedor
+    empresa_nome
+    cliente {
+      id
+      razao_social
+      nome_fantasia
+      cnpj
+      email_financeiro
+      telefone_financeiro
+      telefone_whatsapp
+    }
+    lead {
+      id
+      nome_empresa
+      contato_principal
+      email_contato
+      telefone_contato
+      telefone_whatsapp
+    }
+    itens {
+      ...OrcamentoItemFields
+    }
+  }
+  ${ORCAMENTO_ITEM_FRAGMENT}
 `;
 
 export const CONTRATO_FRAGMENT = gql`
@@ -274,6 +337,25 @@ export const GET_ORCAMENTO = gql`
   ${ORCAMENTO_FRAGMENT}
 `;
 
+export const GET_ORCAMENTO_FULL = gql`
+  query GetOrcamentoFull($id: ID!) {
+    orcamento(id: $id) {
+      ...OrcamentoFullFields
+    }
+  }
+  ${ORCAMENTO_FULL_FRAGMENT}
+`;
+
+export const GERAR_ORCAMENTO_TXT = gql`
+  query GerarOrcamentoTxt($id: ID!) {
+    gerarOrcamentoTxt(id: $id) {
+      orcamento_id
+      texto
+      html
+    }
+  }
+`;
+
 export const GET_CONTRATOS = gql`
   query GetContratos {
     contratos {
@@ -335,6 +417,17 @@ export const GET_COLABORADORES = gql`
     }
   }
   ${COLABORADOR_FRAGMENT}
+`;
+
+export const GET_PERMISSOES = gql`
+  query GetPermissoes {
+    permissoes {
+      id_permissao
+      nome_perfil
+      descricao
+      nivel_acesso
+    }
+  }
 `;
 
 export const GET_COLABORADOR = gql`

@@ -2,8 +2,9 @@ import React from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, FileText, ShoppingCart, Building, BarChart3, ChevronRight, DollarSign, TrendingUp } from 'lucide-react';
+import { Users, FileText, ShoppingCart, Building, BarChart3, ChevronRight, DollarSign, TrendingUp, LayoutDashboard, Activity, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { PageHeader, StatsCard } from '@/components/ui';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -67,71 +68,43 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <AdminLayout title="Dashboard">
-      <div className="space-y-4 sm:space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">Bem-vindo ao painel administrativo</p>
-        </div>
+      <div className="space-y-6">
+        <PageHeader 
+          title="Dashboard"
+          description="Bem-vindo ao painel administrativo"
+          icon={LayoutDashboard}
+        />
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="pt-3 sm:pt-4 p-3 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Receita Mensal</p>
-                  <p className="text-lg sm:text-2xl font-bold text-foreground">R$ 1.2M</p>
-                </div>
-                <div className="p-2 rounded-full bg-green-100 flex-shrink-0">
-                  <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
-                </div>
-              </div>
-              <p className="text-xs text-green-600 mt-2">+18% vs mês anterior</p>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="pt-3 sm:pt-4 p-3 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Novos Leads</p>
-                  <p className="text-lg sm:text-2xl font-bold text-foreground">24</p>
-                </div>
-                <div className="p-2 rounded-full bg-blue-100 flex-shrink-0">
-                  <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
-                </div>
-              </div>
-              <p className="text-xs text-blue-600 mt-2">+12% este mês</p>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="pt-3 sm:pt-4 p-3 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Pedidos Ativos</p>
-                  <p className="text-lg sm:text-2xl font-bold text-foreground">12</p>
-                </div>
-                <div className="p-2 rounded-full bg-orange-100 flex-shrink-0">
-                  <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">5 em produção</p>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="pt-3 sm:pt-4 p-3 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Taxa Conversão</p>
-                  <p className="text-lg sm:text-2xl font-bold text-foreground">42%</p>
-                </div>
-                <div className="p-2 rounded-full bg-purple-100 flex-shrink-0">
-                  <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
-                </div>
-              </div>
-              <p className="text-xs text-green-600 mt-2">+5% vs mês anterior</p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatsCard
+            title="Receita Mensal"
+            value="R$ 1.2M"
+            icon={DollarSign}
+            color="green"
+            description="+18% vs mês anterior"
+          />
+          <StatsCard
+            title="Novos Leads"
+            value="24"
+            icon={Users}
+            color="blue"
+            description="+12% este mês"
+          />
+          <StatsCard
+            title="Pedidos Ativos"
+            value="12"
+            icon={ShoppingCart}
+            color="orange"
+            description="5 em produção"
+          />
+          <StatsCard
+            title="Taxa Conversão"
+            value="42%"
+            icon={BarChart3}
+            color="purple"
+            description="+5% vs mês anterior"
+          />
         </div>
 
         {/* Quick Access Cards */}

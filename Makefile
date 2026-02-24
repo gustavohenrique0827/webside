@@ -31,11 +31,11 @@ help:
 
 build:
 	@echo "$(YELLOW)Building Docker images...$(NC)"
-	docker compose build
+	docker compose -f docker/docker-compose.yml build
 
 up:
 	@echo "$(YELLOW)Starting containers...$(NC)"
-	docker compose up -d
+	docker compose -f docker/docker-compose.yml up -d
 	@echo "$(GREEN)Services started!$(NC)"
 	@echo "  - Frontend:    http://localhost"
 	@echo "  - Backend:     http://localhost/api"
@@ -43,46 +43,46 @@ up:
 
 down:
 	@echo "$(YELLOW)Stopping containers...$(NC)"
-	docker compose down
+	docker compose -f docker/docker-compose.yml down
 
 restart:
 	@echo "$(YELLOW)Restarting containers...$(NC)"
-	docker compose restart
+	docker compose -f docker/docker-compose.yml restart
 
 logs:
-	docker compose logs -f
+	docker compose -f docker/docker-compose.yml logs -f
 
 logs-backend:
-	docker compose logs -f backend
+	docker compose -f docker/docker-compose.yml logs -f backend
 
 logs-frontend:
-	docker compose logs -f frontend
+	docker compose -f docker/docker-compose.yml logs -f frontend
 
 logs-db:
-	docker compose logs -f db
+	docker compose -f docker/docker-compose.yml logs -f db
 
 ps:
-	docker compose ps
+	docker compose -f docker/docker-compose.yml ps
 
 clean:
 	@echo "$(YELLOW)WARNING: This will remove all containers and volumes!$(NC)"
 	@read -p "Are you sure? [y/N] " confirm && [ "$$confirm" = "y" ] || exit 1
-	docker compose down -v
+	docker compose -f docker/docker-compose.yml down -v
 	@echo "$(GREEN)Clean complete!$(NC)"
 
 rebuild:
-	docker compose up -d --build
+	docker compose -f docker/docker-compose.yml up -d --build
 
 dev:
-	docker compose up -d
+	docker compose -f docker/docker-compose.yml up -d
 	@echo "$(GREEN)Development environment ready!$(NC)"
 	@echo "  - Frontend:    http://localhost"
 	@echo "  - Backend:     http://localhost/api"
 	@echo "  - Adminer:     http://localhost:8080"
 
 build-frontend:
-	docker compose build frontend
+	docker compose -f docker/docker-compose.yml build frontend
 
 build-backend:
-	docker compose build backend
+	docker compose -f docker/docker-compose.yml build backend
 

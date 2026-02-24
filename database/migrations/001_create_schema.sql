@@ -1,8 +1,9 @@
--- Modelo de Banco de Dados para Gestão Empresarial
--- Estrutura Completa
+-- Migration: 001_create_schema
+-- Description: Cria a estrutura completa do banco de dados
+-- Created at: 2024-01-01
 
 -- Tabela: empresas
-CREATE TABLE empresas (
+CREATE TABLE IF NOT EXISTS empresas (
     id_empresa INT AUTO_INCREMENT PRIMARY KEY,
     cnpj VARCHAR(18) NOT NULL UNIQUE,
     razao_social VARCHAR(200) NOT NULL,
@@ -15,7 +16,7 @@ CREATE TABLE empresas (
 );
 
 -- Tabela: parametros_empresa
-CREATE TABLE parametros_empresa (
+CREATE TABLE IF NOT EXISTS parametros_empresa (
     id_parametro INT AUTO_INCREMENT PRIMARY KEY,
     salario_minimo DECIMAL(10,2) NOT NULL,
     percentual_reajuste DECIMAL(5,2) NOT NULL,
@@ -24,38 +25,8 @@ CREATE TABLE parametros_empresa (
     data_vigencia DATE NOT NULL
 );
 
--- Tabela: enderecos
-CREATE TABLE enderecos (
-    id_endereco INT AUTO_INCREMENT PRIMARY KEY,
-    tipo_entidade ENUM('empresa','cliente','colaborador') NOT NULL,
-    id_entidade INT NOT NULL,
-    cep VARCHAR(9) NOT NULL,
-    logradouro VARCHAR(200) NOT NULL,
-    numero VARCHAR(10) NOT NULL,
-    complemento VARCHAR(100),
-    bairro VARCHAR(100) NOT NULL,
-    municipio VARCHAR(100) NOT NULL,
-    uf CHAR(2) NOT NULL,
-    pais VARCHAR(50) NOT NULL DEFAULT 'Brasil',
-    tipo_endereco ENUM('comercial','residencial','entrega') NOT NULL,
-    principal TINYINT(1) NOT NULL DEFAULT 0,
-    data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- Tabela: departamentos
-CREATE TABLE departamentos (
-    id_departamento INT AUTO_INCREMENT PRIMARY KEY,
-    id_empresa INT NOT NULL,
-    nome VARCHAR(100) NOT NULL,
-    descricao TEXT,
-    codigo VARCHAR(10) NOT NULL UNIQUE,
-    ativo TINYINT(1) NOT NULL DEFAULT 1,
-    data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_empresa) REFERENCES empresas(id_empresa)
-);
-
 -- Tabela: permissoes
-CREATE TABLE permissoes (
+CREATE TABLE IF NOT EXISTS permissoes (
     id_permissao INT AUTO_INCREMENT PRIMARY KEY,
     nome_perfil VARCHAR(50) NOT NULL,
     descricao TEXT,
@@ -65,7 +36,7 @@ CREATE TABLE permissoes (
 );
 
 -- Tabela: colaboradores
-CREATE TABLE colaboradores (
+CREATE TABLE IF NOT EXISTS colaboradores (
     id_colaborador INT AUTO_INCREMENT PRIMARY KEY,
     id_permissao INT NOT NULL,
     cpf VARCHAR(14) NOT NULL UNIQUE,
@@ -84,8 +55,20 @@ CREATE TABLE colaboradores (
     FOREIGN KEY (id_permissao) REFERENCES permissoes(id_permissao)
 );
 
+-- Tabela: departamentos
+CREATE TABLE IF NOT EXISTS departamentos (
+    id_departamento INT AUTO_INCREMENT PRIMARY KEY,
+    id_empresa INT NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    descricao TEXT,
+    codigo VARCHAR(10) NOT NULL UNIQUE,
+    ativo TINYINT(1) NOT NULL DEFAULT 1,
+    data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_empresa) REFERENCES empresas(id_empresa)
+);
+
 -- Tabela: colaboradores_departamentos
-CREATE TABLE colaboradores_departamentos (
+CREATE TABLE IF NOT EXISTS colaboradores_departamentos (
     id_vinculo INT AUTO_INCREMENT PRIMARY KEY,
     id_colaborador INT NOT NULL,
     id_departamento INT NOT NULL,
@@ -98,7 +81,7 @@ CREATE TABLE colaboradores_departamentos (
 );
 
 -- Tabela: status
-CREATE TABLE status (
+CREATE TABLE IF NOT EXISTS status (
     id_status INT AUTO_INCREMENT PRIMARY KEY,
     tipo_entidade ENUM('cliente','pedido','contrato','implantacao','fatura','lead','aditivo','orcamento') NOT NULL,
     codigo_status VARCHAR(20) NOT NULL,
@@ -111,7 +94,7 @@ CREATE TABLE status (
 );
 
 -- Tabela: templates
-CREATE TABLE templates (
+CREATE TABLE IF NOT EXISTS templates (
     id_template INT AUTO_INCREMENT PRIMARY KEY,
     tipo_template ENUM('email','contrato','aditivo','comunicado') NOT NULL,
     nome_template VARCHAR(100) NOT NULL,
@@ -123,8 +106,26 @@ CREATE TABLE templates (
     id_usuario_criacao INT NOT NULL
 );
 
+-- Tabela: enderecos
+CREATE TABLE IF NOT EXISTS enderecos (
+    id_endereco INT AUTO_INCREMENT PRIMARY KEY,
+    tipo_entidade ENUM('empresa','cliente','colaborador') NOT NULL,
+    id_entidade INT NOT NULL,
+    cep VARCHAR(9) NOT NULL,
+    logradouro VARCHAR(200) NOT NULL,
+    numero VARCHAR(10) NOT NULL,
+    complemento VARCHAR(100),
+    bairro VARCHAR(100) NOT NULL,
+    municipio VARCHAR(100) NOT NULL,
+    uf CHAR(2) NOT NULL,
+    pais VARCHAR(50) NOT NULL DEFAULT 'Brasil',
+    tipo_endereco ENUM('comercial','residencial','entrega') NOT NULL,
+    principal TINYINT(1) NOT NULL DEFAULT 0,
+    data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Tabela: leads
-CREATE TABLE leads (
+CREATE TABLE IF NOT EXISTS leads (
     id_lead INT AUTO_INCREMENT PRIMARY KEY,
     id_empresa INT NOT NULL,
     id_colaborador INT NOT NULL,
@@ -146,7 +147,7 @@ CREATE TABLE leads (
 );
 
 -- Tabela: clientes
-CREATE TABLE clientes (
+CREATE TABLE IF NOT EXISTS clientes (
     id_cliente INT AUTO_INCREMENT PRIMARY KEY,
     id_empresa INT NOT NULL,
     id_lead INT NULL,
@@ -168,7 +169,7 @@ CREATE TABLE clientes (
 );
 
 -- Tabela: contatos
-CREATE TABLE contatos (
+CREATE TABLE IF NOT EXISTS contatos (
     id_contato INT AUTO_INCREMENT PRIMARY KEY,
     id_cliente INT NOT NULL,
     tipo_contato ENUM('gestor','testemunha','financeiro','tecnico') NOT NULL,
@@ -183,7 +184,7 @@ CREATE TABLE contatos (
 );
 
 -- Tabela: produtos
-CREATE TABLE produtos (
+CREATE TABLE IF NOT EXISTS produtos (
     id_produto INT AUTO_INCREMENT PRIMARY KEY,
     codigo_produto VARCHAR(20) NOT NULL UNIQUE,
     nome VARCHAR(200) NOT NULL,
@@ -199,7 +200,7 @@ CREATE TABLE produtos (
 );
 
 -- Tabela: orcamentos
-CREATE TABLE orcamentos (
+CREATE TABLE IF NOT EXISTS orcamentos (
     id_orcamento INT AUTO_INCREMENT PRIMARY KEY,
     numero_orcamento VARCHAR(20) NOT NULL UNIQUE,
     id_lead INT NULL,
@@ -221,7 +222,7 @@ CREATE TABLE orcamentos (
 );
 
 -- Tabela: orcamentos_itens
-CREATE TABLE orcamentos_itens (
+CREATE TABLE IF NOT EXISTS orcamentos_itens (
     id_item INT AUTO_INCREMENT PRIMARY KEY,
     id_orcamento INT NOT NULL,
     id_produto INT NOT NULL,
@@ -237,7 +238,7 @@ CREATE TABLE orcamentos_itens (
 );
 
 -- Tabela: pedidos
-CREATE TABLE pedidos (
+CREATE TABLE IF NOT EXISTS pedidos (
     id_pedido INT AUTO_INCREMENT PRIMARY KEY,
     numero_pedido VARCHAR(20) NOT NULL UNIQUE,
     id_orcamento INT NULL,
@@ -258,7 +259,7 @@ CREATE TABLE pedidos (
 );
 
 -- Tabela: pedidos_itens
-CREATE TABLE pedidos_itens (
+CREATE TABLE IF NOT EXISTS pedidos_itens (
     id_item INT AUTO_INCREMENT PRIMARY KEY,
     id_pedido INT NOT NULL,
     id_produto INT NOT NULL,
@@ -272,7 +273,7 @@ CREATE TABLE pedidos_itens (
 );
 
 -- Tabela: contratos
-CREATE TABLE contratos (
+CREATE TABLE IF NOT EXISTS contratos (
     id_contrato INT AUTO_INCREMENT PRIMARY KEY,
     numero_contrato VARCHAR(20) NOT NULL UNIQUE,
     id_pedido INT NOT NULL,
@@ -293,7 +294,7 @@ CREATE TABLE contratos (
 );
 
 -- Tabela: contratos_aditivos
-CREATE TABLE contratos_aditivos (
+CREATE TABLE IF NOT EXISTS contratos_aditivos (
     id_aditivo INT AUTO_INCREMENT PRIMARY KEY,
     id_contrato INT NOT NULL,
     numero_aditivo VARCHAR(20) NOT NULL,
@@ -310,7 +311,7 @@ CREATE TABLE contratos_aditivos (
 );
 
 -- Tabela: implantacoes
-CREATE TABLE implantacoes (
+CREATE TABLE IF NOT EXISTS implantacoes (
     id_implantacao INT AUTO_INCREMENT PRIMARY KEY,
     id_contrato INT NOT NULL,
     id_colaborador INT NOT NULL,
@@ -328,7 +329,7 @@ CREATE TABLE implantacoes (
 );
 
 -- Tabela: comprovacoes
-CREATE TABLE comprovacoes (
+CREATE TABLE IF NOT EXISTS comprovacoes (
     id_comprovacao INT AUTO_INCREMENT PRIMARY KEY,
     id_implantacao INT NOT NULL,
     tipo_comprovacao ENUM('foto','documento','assinatura','outro') NOT NULL,
@@ -341,7 +342,7 @@ CREATE TABLE comprovacoes (
 );
 
 -- Tabela: faturas
-CREATE TABLE faturas (
+CREATE TABLE IF NOT EXISTS faturas (
     id_fatura INT AUTO_INCREMENT PRIMARY KEY,
     id_contrato INT NOT NULL,
     numero_fatura VARCHAR(20) NOT NULL,
@@ -358,7 +359,7 @@ CREATE TABLE faturas (
 );
 
 -- Tabela: reajustes
-CREATE TABLE reajustes (
+CREATE TABLE IF NOT EXISTS reajustes (
     id_reajuste INT AUTO_INCREMENT PRIMARY KEY,
     id_contrato INT NOT NULL,
     id_fatura INT NULL,
@@ -370,6 +371,27 @@ CREATE TABLE reajustes (
     id_usuario_aprovacao INT NOT NULL,
     FOREIGN KEY (id_contrato) REFERENCES contratos(id_contrato),
     FOREIGN KEY (id_fatura) REFERENCES faturas(id_fatura)
+);
+
+-- Tabela: transacoes
+CREATE TABLE IF NOT EXISTS transacoes (
+    id_transacao INT AUTO_INCREMENT PRIMARY KEY,
+    tipo ENUM('entrada','saida') NOT NULL,
+    valor DECIMAL(10,2) NOT NULL,
+    data DATE NOT NULL,
+    descricao VARCHAR(255) NOT NULL,
+    categoria VARCHAR(100) NOT NULL,
+    forma_pagamento VARCHAR(50) NOT NULL,
+    status ENUM('Pago','Pendente','Atrasado') NOT NULL DEFAULT 'Pendente',
+    data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id_usuario_criacao INT NOT NULL
+);
+
+-- Tabela: migrations (controle de versão)
+CREATE TABLE IF NOT EXISTS migrations (
+    id_migration INT AUTO_INCREMENT PRIMARY KEY,
+    nome_migration VARCHAR(100) NOT NULL UNIQUE,
+    executed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Índices Únicos
@@ -388,3 +410,7 @@ CREATE INDEX idx_faturas_vencimento_status ON faturas(data_vencimento, id_status
 CREATE INDEX idx_implantacoes_status_fim ON implantacoes(id_status, data_fim_prevista);
 CREATE INDEX idx_leads_status_criacao ON leads(id_status, data_criacao);
 CREATE INDEX idx_orcamentos_status_validade ON orcamentos(id_status, data_validade);
+
+-- Registrar migration
+INSERT INTO migrations (nome_migration) VALUES ('001_create_schema');
+

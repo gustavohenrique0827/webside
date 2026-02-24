@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -8,12 +9,22 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    // Proxy desabilitado - API chamará diretamente o backend PHP no Hostgator
+    // Proxy para o backend Node.js (GraphQL)
+    // Usa variável de ambiente VITE_API_URL ou localhost como fallback
     proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
+      '/graphql': {
+        target: import.meta.env.VITE_API_URL || 'http://localhost:5000',
         changeOrigin: true,
         ws: true,
+      },
+      '/api': {
+        target: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+        changeOrigin: true,
+        ws: true,
+      },
+      '/health': {
+        target: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+        changeOrigin: true,
       },
     },
   },

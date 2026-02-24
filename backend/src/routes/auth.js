@@ -14,7 +14,10 @@ router.post('/login', async (req, res) => {
     }
 
     const [rows] = await pool.query(
-      'SELECT * FROM colaboradores WHERE email = ?',
+      `SELECT c.*, p.nome_perfil, p.nivel_acesso, p.permissoes_json 
+       FROM colaboradores c 
+       LEFT JOIN permissoes p ON c.id_permissao = p.id_permissao 
+       WHERE c.email = ?`,
       [email]
     );
 
@@ -37,7 +40,10 @@ router.post('/login', async (req, res) => {
         id: user.id_colaborador,
         nome: user.nome_completo,
         email: user.email,
-        nivel_acesso: user.nivel_acesso
+        tipo: user.tipo_colaborador,
+        nivel_acesso: user.nivel_acesso,
+        perfil: user.nome_perfil,
+        permissoes: user.permissoes_json
       }
     });
   } catch (error) {

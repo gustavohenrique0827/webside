@@ -29,7 +29,7 @@ services:
   backend:
     image: node:20-alpine
     ports:
-      - "3000:3000"
+      - "3001:3001"
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -42,7 +42,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-Web@132435*}
       - DB_NAME=${DB_NAME:-websid23_erp}
       - JWT_SECRET=${JWT_SECRET:-dev-secret}
-      - PORT=3000
+      - PORT=3001
     networks:
       - webside-network
     depends_on:

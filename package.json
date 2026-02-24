@@ -1,4 +1,23 @@
 {
+  "name": "webside",
+  "version": "1.0.0",
+  "description": "Webside ERP - Full Stack Application",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "start": "cd backend && npm start",
+    "docker:up": "make up",
+    "docker:dev": "make dev",
+    "docker:down": "make down"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
   "dependencies": {
     "@apollo/client": "^4.1.4",
     "@hookform/resolvers": "^3.10.0",
@@ -57,5 +76,11 @@
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.9",
     "zod": "^3.25.76"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Webside Team",
+  "license": "MIT"
 }
+

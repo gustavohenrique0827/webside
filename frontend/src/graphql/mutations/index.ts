@@ -9,6 +9,8 @@ export const LOGIN = gql`
         id
         nome_completo
         email
+        tipo_colaborador
+        ativo
       }
     }
   }
@@ -202,6 +204,26 @@ export const UPDATE_ORCAMENTO = gql`
 export const DELETE_ORCAMENTO = gql`
   mutation DeleteOrcamento($id: ID!) {
     deleteOrcamento(id: $id)
+  }
+`;
+
+export const ENVIAR_ORCAMENTO_EMAIL = gql`
+  mutation EnviarOrcamentoEmail($input: EnviarEmailInput!) {
+    enviarOrcamentoEmail(input: $input) {
+      success
+      message
+      email_enviado
+    }
+  }
+`;
+
+export const ENVIAR_ORCAMENTO_WHATSAPP = gql`
+  mutation EnviarOrcamentoWhatsapp($input: EnviarWhatsappInput!) {
+    enviarOrcamentoWhatsapp(input: $input) {
+      success
+      message
+      numero_whatsapp
+    }
   }
 `;
 

@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { FileText, Download, TrendingUp, Users, DollarSign, Package, Calendar, BarChart3, Eye, Filter, PieChart, LineChart, Activity } from 'lucide-react';
+import { FileText, Download, TrendingUp, Users, DollarSign, Package, Calendar, BarChart3, Eye, PieChart, LineChart, Activity, FileBarChart } from 'lucide-react';
 import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Area, AreaChart } from 'recharts';
+import { PageHeader, StatsCard } from '@/components/ui';
 
 const relatoriosDisponiveis = [
   {
@@ -129,38 +130,42 @@ const Relatorios: React.FC = () => {
   return (
     <AdminLayout title="Relatórios">
       <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Relatórios</h1>
-          <p className="text-muted-foreground">Análises e métricas do seu negócio</p>
-        </div>
+        <PageHeader 
+          title="Relatórios"
+          description="Análises e métricas do seu negócio"
+          icon={FileBarChart}
+        />
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-accent">R$ 1.2M</div>
-              <p className="text-sm text-muted-foreground">Receita do Mês</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-green-600">+18%</div>
-              <p className="text-sm text-muted-foreground">vs Mês Anterior</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-accent">156</div>
-              <p className="text-sm text-muted-foreground">Clientes Ativos</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-purple-600">42%</div>
-              <p className="text-sm text-muted-foreground">Taxa de Conversão</p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatsCard
+            title="Receita do Mês"
+            value="R$ 1.2M"
+            icon={DollarSign}
+            color="green"
+            description="+18% vs Mês Anterior"
+          />
+          <StatsCard
+            title="Crescimento"
+            value="+18%"
+            icon={TrendingUp}
+            color="green"
+            description="vs Mês Anterior"
+          />
+          <StatsCard
+            title="Clientes Ativos"
+            value="156"
+            icon={Users}
+            color="blue"
+            description="Total cadastrados"
+          />
+          <StatsCard
+            title="Taxa de Conversão"
+            value="42%"
+            icon={BarChart3}
+            color="purple"
+            description="Média geral"
+          />
         </div>
 
         {/* Dashboard de Métricas */}
