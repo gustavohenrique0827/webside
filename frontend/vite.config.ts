@@ -10,20 +10,20 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     // Proxy para o backend Node.js (GraphQL)
-    // Usa variável de ambiente VITE_API_URL ou localhost como fallback
+    // Uses localhost as fallback for Docker builds
     proxy: {
       '/graphql': {
-        target: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+        target: 'http://localhost:5000',
         changeOrigin: true,
         ws: true,
       },
       '/api': {
-        target: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+        target: 'http://localhost:5000',
         changeOrigin: true,
         ws: true,
       },
       '/health': {
-        target: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+        target: 'http://localhost:5000',
         changeOrigin: true,
       },
     },

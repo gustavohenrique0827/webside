@@ -4,8 +4,10 @@ services:
   # Frontend - Nginx serving React build
   frontend:
     build:
-      context: ..
-      dockerfile: docker/Dockerfile.frontend
+      context: ../frontend
+      dockerfile: ../docker/Dockerfile.frontend
+      args:
+        - VITE_API_URL=http://localhost:3001
     ports:
       - "80:80"
     depends_on:
