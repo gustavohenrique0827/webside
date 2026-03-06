@@ -105,7 +105,7 @@ async function startServer() {
     res.status(500).json({ error: 'Algo deu errado!' });
   });
 
-  const PORT = process.env.PORT || 3001;
+  const PORT = process.env.PORT || 3002;
 
   app.listen(PORT, () => {
     logger.info(`

@@ -2,37 +2,42 @@ const mysql = require('mysql2/promise');
 const { logger } = require('./logger');
 
 // Usar MySQL do Hostgator por padrão
-  const poolConfig = {
-    host: process.env.DB_HOST || '162.241.2.103',
-    user: process.env.DB_USER || 'websid23_dev',
-    password: process.env.DB_PASSWORD || 'Web@132435*',
-    database: process.env.DB_NAME || 'websid23_erp',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-  };
+// collect credentials, allowing both DB_PASSWORD (preferred) and legacy DB_PASS
+const dbPassword = process.env.DB_PASSWORD || process.env.DB_PASS || 'Web@132435*';
+const dbPort = process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306;
 
-  logger.info('Inicializando conexão com banco de dados MySQL...', {
-    host: poolConfig.host,
-    database: poolConfig.database,
-    user: poolConfig.user
-  });
+const poolConfig = {
+  host: process.env.DB_HOST || '162.241.2.103',
+  port: dbPort,
+  user: process.env.DB_USER || 'websid23_dev',
+  password: dbPassword,
+  database: process.env.DB_NAME || 'websid23_erp',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+};
 
-  pool = mysql.createPool(poolConfig);
+logger.info('Inicializando conexão com banco de dados MySQL...', {
+  host: poolConfig.host,
+  port: poolConfig.port,
+  database: poolConfig.database,
+  user: poolConfig.user
+});
 
-  // Testa a conexão ao iniciar
-  pool.getConnection()
-    .then(connection => {
-      logger.info('✅ Conexão com banco de dados estabelecida com sucesso!');
-      connection.release();
-    })
-    .catch(err => {
-      logger.errorWithStack('❌ Erro ao conectar no banco de dados:', err, {
-        host: poolConfig.host,
-        database: poolConfig.database
-      });
+let pool = mysql.createPool(poolConfig);
+
+// Testa a conexão ao iniciar
+pool.getConnection()
+  .then(connection => {
+    logger.info('✅ Conexão com banco de dados estabelecida com sucesso!');
+    connection.release();
+  })
+  .catch(err => {
+    logger.errorWithStack('❌ Erro ao conectar no banco de dados:', err, {
+      host: poolConfig.host,
+      database: poolConfig.database
     });
-
+  });
 
 // Wrapper para log de queries
 const originalQuery = pool.query.bind(pool);

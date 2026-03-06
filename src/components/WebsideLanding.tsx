@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, Cloud, LineChart, Smartphone, ShieldCheck, Headset, Rocket, Cpu, ChevronRight, Lock, ChevronLeft, ChevronRight as ChevronRightIcon, Facebook, Instagram, Twitter, Linkedin, Loader2 } from "lucide-react";
+import { CheckCircle2, Cloud, LineChart, Smartphone, ShieldCheck, Headset, Rocket, Cpu, ChevronRight, Lock, ChevronLeft, ChevronRight as ChevronRightIcon, Facebook, Instagram, Twitter, Linkedin, Loader2, Menu, X } from "lucide-react";
 import { apiService } from "@/lib/api";
 
 const container = {
@@ -88,6 +88,7 @@ export default function WebsideLanding() {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -151,10 +152,26 @@ export default function WebsideLanding() {
     return () => clearInterval(interval);
   }, [nextImage]);
 
+  const navItems = [
+    { href: "#produto", label: "Produto" },
+    { href: "#diferenciais", label: "Diferenciais" },
+    { href: "#provas", label: "Clientes" },
+    { href: "#recursos", label: "Recursos" },
+    { href: "#contato", label: "Contato" },
+  ];
+
+  const handleNavClick = (href: string) => {
+    setIsMobileMenuOpen(false);
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-gradient-hero">
       {/* Navbar */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-primary/80 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-primary/90 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img
@@ -163,18 +180,24 @@ export default function WebsideLanding() {
               className="h-8 w-auto object-contain"
             />
           </div>
-          <nav className="hidden md:flex items-center gap-6 text-white/80 text-sm">
-            <a href="#produto" className="hover:text-white transition-colors">Produto</a>
-            <a href="#diferenciais" className="hover:text-white transition-colors">Diferenciais</a>
-            <a href="#provas" className="hover:text-white transition-colors">Clientes</a>
-            <a href="#recursos" className="hover:text-white transition-colors">Recursos</a>
-            <a href="#contato" className="hover:text-white transition-colors">Contato</a>
+
+          <nav className="hidden md:flex items-center gap-6 text-white/90 text-sm">
+            {navItems.map((item) => (
+              <button
+                key={item.href}
+                onClick={() => handleNavClick(item.href)}
+                className="hover:text-white transition-colors"
+              >
+                {item.label}
+              </button>
+            ))}
           </nav>
-          <div className="flex items-center gap-2">
+
+          <div className="hidden md:flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
-              className="text-white/80 hover:text-white hover:bg-white/10"
+              className="text-white/90 hover:text-white hover:bg-white/10"
               onClick={() => navigate('/login')}
             >
               <Lock className="w-4 h-4 mr-2" />
@@ -184,7 +207,54 @@ export default function WebsideLanding() {
               Solicitar Demonstração
             </Button>
           </div>
+
+          <button
+            className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            aria-label="Abrir menu"
+            aria-expanded={isMobileMenuOpen}
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
+
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-white/10 bg-primary/95">
+            <div className="px-4 py-4 flex flex-col gap-2">
+              {navItems.map((item) => (
+                <button
+                  key={item.href}
+                  onClick={() => handleNavClick(item.href)}
+                  className="text-left px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-colors"
+                >
+                  {item.label}
+                </button>
+              ))}
+              <div className="mt-2 grid grid-cols-1 gap-2">
+                <Button
+                  variant="ghost"
+                  className="justify-start text-white/90 hover:text-white hover:bg-white/10"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    navigate('/login');
+                  }}
+                >
+                  <Lock className="w-4 h-4 mr-2" />
+                  Área Restrita
+                </Button>
+                <Button
+                  variant="cta"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsDemoDialogOpen(true);
+                  }}
+                >
+                  Solicitar Demonstração
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       <Dialog open={isDemoDialogOpen} onOpenChange={setIsDemoDialogOpen}>
@@ -327,10 +397,10 @@ export default function WebsideLanding() {
                 </p>
               </div>
               <div className="mt-6 flex flex-wrap items-center gap-3">
-                <Button variant="cta" size="lg">
+                <Button variant="cta" size="lg" onClick={() => setIsDemoDialogOpen(true)}>
                   Falar com um consultor
                 </Button>
-                <Button variant="hero" size="lg">
+                <Button variant="hero" size="lg" onClick={() => handleNavClick("#recursos")}>
                   Ver recursos <ChevronRight className="ml-2 w-4 h-4" />
                 </Button>
               </div>
@@ -581,6 +651,54 @@ export default function WebsideLanding() {
       </section>
 
 
+
+      {/* Recursos */}
+      <section id="recursos" className="py-14 md:py-24 bg-white">
+        <div className="mx-auto max-w-7xl px-4">
+          <motion.div
+            className="max-w-2xl"
+            variants={container}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
+            <h2 className="text-2xl md:text-4xl font-bold text-primary">
+              Recursos que simplificam sua operação
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Ferramentas práticas para gestão comercial, financeira e operacional do posto.
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-5"
+            variants={staggerChildren}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
+            {[
+              "Controle de vendas em tempo real",
+              "Conciliação financeira e relatórios",
+              "Gestão de estoque integrada",
+              "Acompanhamento de metas e performance",
+              "Perfis de acesso e trilha de auditoria",
+              "Suporte especializado para implantação",
+            ].map((item) => (
+              <motion.div
+                key={item}
+                variants={container}
+                className="rounded-2xl border border-border bg-background p-5 shadow-sm hover:shadow-md transition-all"
+              >
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-accent mt-0.5" />
+                  <p className="text-foreground">{item}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
 
       {/* Provas sociais */}
       <section id="provas" className="py-14 md:py-24 bg-gradient-hero">

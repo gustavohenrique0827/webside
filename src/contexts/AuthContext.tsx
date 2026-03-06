@@ -1,11 +1,29 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { apiService } from '@/lib/api';
+import { gql } from '@apollo/client/core';
+import { apolloClient } from '@/lib/apollo';
+
+// GraphQL Login Mutation
+const LOGIN_MUTATION = gql`
+  mutation Login($input: LoginInput!) {
+    login(input: $input) {
+      token
+      user {
+        id
+        nome_completo
+        email
+        tipo_colaborador
+        telefone
+      }
+    }
+  }
+`;
 
 interface User {
   id: number;
   nome: string;
   email: string;
   tipo: string;
+  telefone?: string;
 }
 
 interface LoginResponse {
@@ -40,16 +58,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(userData);
           setIsAuthenticated(true);
           
-          // Optionally verify token is still valid
-          try {
-            const profileData = await apiService.getProfile() as User;
-            setUser(profileData);
-            localStorage.setItem('user', JSON.stringify(profileData));
-          } catch (error) {
-            // Token might be expired, but we'll keep the user logged in
-            // They'll be redirected to login if they try to access protected resources
-            console.log('Token verification failed, but keeping user logged in');
-          }
+          // Note: GraphQL health check would go here if needed
+          // For now, we trust the stored token
         } catch (error) {
           // Invalid saved data, clear everything
           localStorage.removeItem('token');
@@ -65,8 +75,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await apiService.login({ email, senha: password }) as LoginResponse;
-      const { token, user: userData } = response;
+      const result = await apolloClient.mutate({
+        mutation: LOGIN_MUTATION,
+        variables: {
+          input: {
+            email,
+            senha: password
+          }
+        }
+      });
+
+      const { token, user: userData } = (result.data as { login: LoginResponse }).login;
 
       // Store token and user data in localStorage
       localStorage.setItem('token', token);
@@ -75,8 +94,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsAuthenticated(true);
       setUser(userData);
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login failed:', error);
+      // Return false for invalid credentials
       return false;
     }
   };
