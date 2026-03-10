@@ -1,0 +1,26 @@
+# Frontend Development Dockerfile
+# Development build with Vite hot reload
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies
+COPY frontend/package*.json ./
+RUN npm ci
+
+# Copy source code
+COPY frontend/ ./
+
+# Environment variables for development
+ENV VITE_API_URL=http://localhost:3002
+ENV VITE_APP_TITLE=Webside
+ENV NODE_ENV=development
+
+# Expose ports: 80 (nginx proxy), 5173 (vite dev server)
+EXPOSE 80 5173
+
+# Start Vite dev server in background, then nginx to proxy
+# Using a startup script to handle both
+CMD ["sh", "-c", "npm run dev & nginx -g 'daemon off;'"]
+

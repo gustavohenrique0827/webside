@@ -10,10 +10,19 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
+      '/graphql': {
+        target: 'http://localhost:3002',
         changeOrigin: true,
         ws: true,
+      },
+      '/api': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+        ws: true,
+      },
+      '/health': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
       },
     },
   },
