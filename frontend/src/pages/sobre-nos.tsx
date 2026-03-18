@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Header from "../components/Header";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Linkedin, MessageCircle, Star, Users, Award, MapPin, Rocket, Handshake, Eye, Shield, TrendingUp, Target, X } from "lucide-react";
 
@@ -26,9 +27,14 @@ const whatsappComercial = "https://wa.me/5511988934345?text=Venho%20pelo%20site%
 export default function SobreNosPage() {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
 
+  const handleAnchorClick = (href: string) => {
+    const el = document.querySelector(href);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className="min-h-screen bg-white text-[#020234]">
-      <Header />
+<Header onAnchorClick={handleAnchorClick} />
       
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-[#020234] to-[#04176b] text-white py-20">
@@ -40,7 +46,7 @@ export default function SobreNosPage() {
           </div>
           <h1 className="text-4xl md:text-5xl font-bold">Sobre a Webside Sistemas</h1>
           <p className="mt-4 text-white/85 text-lg max-w-2xl mx-auto">Desde 2011 transformando a gestão de postos de combustíveis com tecnologia, consultoria e suporte especializado.</p>
-<p className="mt-2 text-[#04A6F9] font-semibold">Software líder de mercado | +15 anos de experiência</p>
+<p className="mt-2 text-[#04A6F9] font-semibold">Empresa lider no Brasil e Revenda preimiada WebPosto por 4 anos consecultivos</p>
         </div>
       </section>
 
@@ -52,7 +58,7 @@ export default function SobreNosPage() {
               <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-[#04A6F9]/20 flex items-center justify-center">
                 <Award className="w-7 h-7 text-[#04A6F9]" />
               </div>
-              <p className="text-4xl font-bold text-[#04A6F9]">+14</p>
+              <p className="text-4xl font-bold text-[#04A6F9]">+15</p>
               <p className="text-white/80">Anos de experiência</p>
             </div>
             <div className="rounded-2xl bg-[#020234] text-white p-6 text-center shadow-xl">
@@ -73,16 +79,10 @@ export default function SobreNosPage() {
               <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-[#04A6F9]/20 flex items-center justify-center">
                 <Users className="w-7 h-7 text-[#04A6F9]" />
               </div>
-              <p className="text-4xl font-bold text-[#04A6F9]">+500</p>
+              <p className="text-4xl font-bold text-[#04A6F9]">+3.000</p>
               <p className="text-white/80">Clientes atendidos</p>
             </div>
-            <div className="rounded-2xl bg-[#020234] text-white p-6 text-center shadow-xl">
-              <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-[#04A6F9]/20 flex items-center justify-center">
-                <TrendingUp className="w-7 h-7 text-[#04A6F9]" />
-              </div>
-              <p className="text-4xl font-bold text-[#04A6F9]">20%</p>
-              <p className="text-white/80">Postos usam WebPosto</p>
-            </div>
+
           </div>
         </div>
       </section>
