@@ -309,21 +309,21 @@ export default function WebsideLanding() {
             <h3 className="text-2xl font-bold mb-8 text-center pt-8">Nossas Filiais</h3>
             <div className="flex flex-col gap-4">
               <a target="_blank" rel="noreferrer" href={maps.mg} className="flex items-center gap-4 p-6 rounded-xl bg-white shadow-lg hover:bg-[#f8fafc] hover:shadow-xl transition-all text-[#020234]">
-                <MapPin size={28} className="text-[#04A6F9] flex-shrink-0" />
+                <MapPin size={20} className="text-[#04A6F9] flex-shrink-0" />
                 <div>
                   <h4 className="font-bold text-lg">Minas Gerais</h4>
                   <p className="text-sm text-gray-600">Clique para ver no mapa</p>
                 </div>
               </a>
               <a target="_blank" rel="noreferrer" href={maps.sp} className="flex items-center gap-4 p-6 rounded-xl bg-white shadow-lg hover:bg-[#f8fafc] hover:shadow-xl transition-all text-[#020234]">
-                <MapPin size={28} className="text-[#04A6F9] flex-shrink-0" />
+                <MapPin size={20} className="text-[#04A6F9] flex-shrink-0" />
                 <div>
                   <h4 className="font-bold text-lg">São Paulo</h4>
                   <p className="text-sm text-gray-600">Clique para ver no mapa</p>
                 </div>
               </a>
               <a target="_blank" rel="noreferrer" href={maps.go} className="flex items-center gap-4 p-6 rounded-xl bg-white shadow-lg hover:bg-[#f8fafc] hover:shadow-xl transition-all text-[#020234]">
-                <MapPin size={28} className="text-[#04A6F9] flex-shrink-0" />
+                <MapPin size={20} className="text-[#04A6F9] flex-shrink-0" />
                 <div>
                   <h4 className="font-bold text-lg">Goiás</h4>
                   <p className="text-sm text-gray-600">Clique para ver no mapa</p>
