@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, ChevronDown, MessageCircle, Phone } from "lucide-react";
+import { Menu, X, ChevronDown, MessageCircle, Phone, BookOpen } from "lucide-react";
 
 interface HeaderProps {
   scrolled?: boolean;
@@ -35,8 +35,18 @@ export default function Header({ scrolled = false, onAnchorClick }: HeaderProps)
     };
   }, [handleClickOutside]);
 
-  const handleAnchorClick = (href: string) => {
-    onAnchorClick?.(href);
+const handleAnchorClick = (href: string) => {
+    // Always navigate to landing + #contato as requested
+    if (href === "#contato") {
+      window.location.href = "/#contato";
+    } else {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        window.location.href = '/' + href;
+      }
+    }
     setMobileOpen(false);
   };
 
@@ -65,7 +75,7 @@ export default function Header({ scrolled = false, onAnchorClick }: HeaderProps)
             </button>
             {solucoesOpen && (
               <div ref={solucoesRef} className="absolute top-full left-0 mt-2 w-screen max-w-6xl bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 z-50 overflow-hidden ml-[-50%] left-1/2 -translate-x-1/2 animate-in fade-in zoom-in duration-200 slide-in-from-top-2">
-                <div className="p-8 grid md:grid-cols-4 gap-8 max-h-96 overflow-y-auto">
+            <div className="p-6 sm:p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 sm:gap-8 max-h-96 overflow-y-auto">
 
                   <div className="group md:col-span-1">
                     <h3 className="text-xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-blue-500">Pista</h3>
@@ -173,58 +183,64 @@ export default function Header({ scrolled = false, onAnchorClick }: HeaderProps)
             )}
           </div>
           <button className="hover:underline" onClick={() => handleAnchorClick("#sobre")}>Sobre Nós</button>
-          <div className="relative ml-auto">
-            <button 
-              className="flex items-center gap-1 hover:underline cursor-pointer" 
-              onClick={() => setShowSupportCard(!showSupportCard)}
-            >
-              Contatos
-              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showSupportCard ? 'rotate-180' : ''}`} />
-            </button>
-            {showSupportCard && (
-              <div ref={supportRef} className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl p-4 text-[#020234]">
-                <div className="space-y-3">
-                  <a href={whatsappSuporte} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-[#25d366] text-white hover:bg-[#20bd5a] transition-colors">
-                    <MessageCircle size={20} />
-                    <div>
-                      <p className="font-semibold">WhatsApp Suporte</p>
-                      <p className="text-sm opacity-90">(34) 99299-0408</p>
-                    </div>
-                  </a>
-                  <button 
-                    onClick={() => { setShowSupportCard(false); handleAnchorClick("#suporte"); }} 
-                    className="w-full flex items-center gap-3 p-3 rounded-lg bg-[#04A6F9] text-white hover:bg-[#0284c7] transition-colors"
-                  >
-                    <Phone size={20} />
-                    <div className="text-left">
-                      <p className="font-semibold">Mais contatos</p>
-                      <p className="text-sm opacity-90">Suporte, telefones e chat</p>
-                    </div>
-                  </button>
+          <div className="relative ml-auto flex items-center gap-2">
+            <div className="relative">
+              <button 
+                className="flex items-center gap-1 hover:underline cursor-pointer" 
+                onClick={() => setShowSupportCard(!showSupportCard)}
+              >
+                Contatos
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showSupportCard ? 'rotate-180' : ''}`} />
+              </button>
+              {showSupportCard && (
+                <div ref={supportRef} className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl p-4 text-[#020234]">
+                  <div className="space-y-3">
+                    <a href={whatsappSuporte} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-[#25d366] text-white hover:bg-[#20bd5a] transition-colors">
+                      <MessageCircle size={20} />
+                      <div>
+                        <p className="font-semibold">WhatsApp Suporte</p>
+                        <p className="text-sm opacity-90">(34) 99299-0408</p>
+                      </div>
+                    </a>
+                    <button 
+                      onClick={() => { setShowSupportCard(false); handleAnchorClick("#suporte"); }} 
+                      className="w-full flex items-center gap-3 p-3 rounded-lg bg-[#04A6F9] text-white hover:bg-[#0284c7] transition-colors"
+                    >
+                      <BookOpen size={20} />
+                      <div className="text-left">
+                        <p className="font-semibold">Mais contatos</p>
+                        <p className="text-sm opacity-90">Suporte, telefones e chat</p>
+                      </div>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+            <a href="https://app.tiflux.com/r/externals/knowledge_folders/16790/5730" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline px-4 py-2 hover:bg-white/20 rounded-lg transition-all">
+              EAD
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
+            </a>
+            <button 
+              onClick={() => handleAnchorClick("#contato")}
+              className="rounded-full bg-[#04A6F9] px-5 py-2 ml-2 hover:bg-[#0284c7] transition-colors"
+            >
+              Fale com Especialista
+            </button>
           </div>
-          <button 
-            onClick={() => handleAnchorClick("#contato")}
-            className="rounded-full bg-[#04A6F9] px-5 py-2 ml-2 hover:bg-[#0284c7] transition-colors"
-          >
-            Fale com Especialista
-          </button>
         </nav>
         <button className="md:hidden text-white p-2" onClick={() => setMobileOpen((v) => !v)} aria-label="Abrir menu">
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
       {mobileOpen && (
-        <div ref={mobileRef} className="md:hidden px-4 pb-4 text-white bg-[#020234] border-t border-white/10">
-          <div className="flex flex-col gap-2 pt-3">
-            <button className="text-left py-2" onClick={() => window.location.href = '/'}>Home</button>
-            <button onClick={() => handleAnchorClick("#solucoes")} className="py-2">Soluções webPosto</button>
-            <button className="py-2" onClick={() => handleAnchorClick("#sobre")}>Sobre Nós</button>
-            <button onClick={() => handleAnchorClick("#suporte")} className="text-left py-2">Suporte</button>
-            <button onClick={() => handleAnchorClick("#suporte")} className="py-2 text-[#04A6F9]">Contatos Suporte</button>
-            <button onClick={() => handleAnchorClick("#contato")} className="rounded-full bg-[#04A6F9] px-4 py-2 mt-2">Fale com Especialista</button>
+        <div ref={mobileRef} className="md:hidden px-4 pb-6 text-white bg-[#020234] border-t border-white/10">
+          <div className="space-y-4 pt-4">
+            <button className="block w-full text-left py-3 px-4 rounded-xl hover:bg-white/10 transition-colors font-medium text-lg" onClick={() => window.location.href = '/'}>Home</button>
+            <button onClick={() => handleAnchorClick("#solucoes")} className="block w-full text-left py-3 px-4 rounded-xl hover:bg-white/10 transition-colors font-medium text-lg">Soluções WebPosto</button>
+            <button className="block w-full text-left py-3 px-4 rounded-xl hover:bg-white/10 transition-colors font-medium text-lg" onClick={() => handleAnchorClick("#sobre")}>Sobre Nós</button>
+            <button className="block w-full text-left py-3 px-4 rounded-xl hover:bg-white/10 transition-colors font-medium text-lg" onClick={() => handleAnchorClick("#suporte")}>Suporte</button>
+            <a href="https://app.tiflux.com/r/externals/knowledge_folders/16790/5730" target="_blank" rel="noopener noreferrer" className="block w-full text-left py-3 px-4 rounded-xl hover:bg-white/10 transition-colors font-medium text-lg text-[#04A6F9] bg-[#04A6F9]/10">EAD</a>
+            <button onClick={() => handleAnchorClick("#contato")} className="w-full rounded-xl bg-[#04A6F9] px-4 py-3 font-semibold text-lg hover:bg-[#0284c7] transition-colors shadow-md">Fale com Especialista</button>
           </div>
         </div>
       )}

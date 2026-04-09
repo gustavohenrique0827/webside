@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'webside_secret_key_2024';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 /**
  * Gera um token JWT para o usuário

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Linkedin, Menu, MessageCircle, X, Shield, Database, Mail, FileText, Cookie, Lock, UserCheck, Globe, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
+import Footer from "../components/Footer";
 
 const maps = {
   mg: "https://maps.app.goo.gl/1S21EcYTbVNEjmji7",
@@ -122,19 +123,19 @@ export default function PrivacidadePage() {
           </div>
           <ul className="space-y-3 text-[#020234]/80">
             <li className="flex items-start gap-2">
-              <span className="text-[#04A6F9] font-bold">✓</span>
+              <span className="text-[#04A6F9] font-bold mt-1">✓</span>
               <span>Responder contatos e agendar demonstrações</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-[#04A6F9] font-bold">✓</span>
+              <span className="text-[#04A6F9] font-bold mt-1">✓</span>
               <span>Enviar comunicações (com opt-out garantido)</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-[#04A6F9] font-bold">✓</span>
+              <span className="text-[#04A6F9] font-bold mt-1">✓</span>
               <span>Melhorar experiência e análises estatísticas</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-[#04A6F9] font-bold">✓</span>
+              <span className="text-[#04A6F9] font-bold mt-1">✓</span>
               <span>Cumprir obrigações legais</span>
             </li>
           </ul>
@@ -229,7 +230,7 @@ export default function PrivacidadePage() {
             </div>
             <h2 className="text-2xl font-bold text-[#020234]">8. Direitos do titular</h2>
           </div>
-          <p className="text-[#020234]/80 mb-4">Você tem os seguintes direitos garantidos pela LGPD:</p>
+          <p className="text-[#020234]/75 mb-4">Você tem os seguintes direitos garantidos pela LGPD:</p>
           <div className="grid md:grid-cols-2 gap-3">
             <div className="bg-[#f0f4f8] rounded-lg p-3 text-sm">✓ Confirmação de tratamento</div>
             <div className="bg-[#f0f4f8] rounded-lg p-3 text-sm">✓ Acesso aos dados</div>
@@ -290,12 +291,12 @@ export default function PrivacidadePage() {
             <div className="bg-white/10 rounded-xl p-4">
               <Mail className="w-6 h-6 text-[#04A6F9] mb-2" />
               <p className="font-semibold">E-mail</p>
-              <p className="text-white/80">fale-conosco@websidesistemas.com.br</p>
+              <p className="text-white/90">fale-conosco@websidesistemas.com.br</p>
             </div>
             <div className="bg-white/10 rounded-xl p-4">
               <Globe className="w-6 h-6 text-[#04A6F9] mb-2" />
               <p className="font-semibold">Website</p>
-              <p className="text-white/80">www.websidesistemas.com.br</p>
+              <p className="text-white/90">www.websidesistemas.com.br</p>
             </div>
           </div>
           <div className="mt-6">
@@ -303,33 +304,15 @@ export default function PrivacidadePage() {
               href={whatsappLink} 
               target="_blank" 
               rel="noreferrer"
-              className="inline-flex items-center gap-2 bg-[#25d366] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#20bd5a] transition-colors"
+              className="inline-flex items-center gap-2 bg-[#25d366] text-[#128c7e] px-5 py-2 font-semibold hover:bg-[#f0f0f0] transition-colors"
             >
-              <MessageCircle size={20} />
-              Falar no WhatsApp
+              Iniciar conversa no WhatsApp
             </a>
           </div>
         </section>
       </main>
 
-      <footer className="bg-[#020234] text-white">
-        <div className="mx-auto max-w-7xl px-4 py-10 grid md:grid-cols-4 gap-8">
-          <div>
-            <img src="/webside-logo-rodape.png" alt="Webside Sistemas" className="h-11 w-auto" />
-            <p className="mt-3 text-white/80">Especialistas em tecnologia para postos de combustíveis.</p>
-            <div className="mt-4 flex gap-3">
-              <a href="https://www.instagram.com/websidesistemas/" target="_blank" rel="noreferrer"><Instagram /></a>
-              <a href="https://www.facebook.com/websidesistemas" target="_blank" rel="noreferrer"><Facebook /></a>
-              <a href="https://www.linkedin.com/company/websidesistemas" target="_blank" rel="noreferrer"><Linkedin /></a>
-              <a href="https://wa.me/5534992990408?text=Venho%20pelo%20site%2C%20quero%20saber%20mais" target="_blank" rel="noreferrer"><MessageCircle /></a>
-            </div>
-          </div>
-          <div><h5 className="font-semibold mb-3">Navegação</h5><ul className="space-y-2 text-white/80"><li><Link to="/">Home</Link></li><li><a href="/#solucoes">Soluções</a></li><li><Link to="/sobre-nos">Sobre Nós</Link></li><li><a href="/#suporte">Suporte</a></li><li><a href="/#contato">Contato</a></li></ul></div>
-          <div><h5 className="font-semibold mb-3">Soluções</h5><ul className="space-y-2 text-white/80"><li>WP PDV</li><li>WP Mobile</li><li>WP Frota</li><li>WP Dashboard</li><li>WP PIX</li><li>WP I.A</li></ul></div>
-<li><a href="/privacidade" target="_blank" rel="noreferrer">Política de Privacidade</a></li>
-        </div>
-        <div className="text-center py-5 border-t border-white/10 text-sm text-white/70">Copyright © 2011-2026 | Webside Consultoria e Sistemas Ltda — Todos os direitos reservados — CNPJ: 35.277.090/0001-47</div>
-      </footer>
+      <Footer />
     </div>
   );
 }

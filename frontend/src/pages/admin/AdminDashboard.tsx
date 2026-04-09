@@ -5,9 +5,20 @@ import { Button } from '@/components/ui/button';
 import { Users, FileText, ShoppingCart, Building, BarChart3, ChevronRight, DollarSign, TrendingUp, LayoutDashboard, Activity, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader, StatsCard } from '@/components/ui';
+import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { useLeads } from '@/hooks/useLeads';
+import { useOrcamentos } from '@/hooks/useOrcamentos';
+import { formatCurrency } from '@/lib/utils';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
+
+  const { data: statsData } = useDashboardStats();
+  const { data: leadsData } = useLeads();
+  const { data: orcamentosData } = useOrcamentos();
+  const stats = statsData;
+  const leads = leadsData;
+  const orcamentos = orcamentosData;
 
   const menuItems = [
     {
@@ -17,7 +28,7 @@ const AdminDashboard: React.FC = () => {
       path: '/admin/leads',
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
-      count: 24
+      count: leads?.length || 0
     },
     {
       title: 'Orçamentos',
@@ -26,7 +37,7 @@ const AdminDashboard: React.FC = () => {
       path: '/admin/orcamentos',
       color: 'text-green-600',
       bgColor: 'bg-green-50',
-      count: 8
+      count: orcamentos?.length || 0
     },
     {
       title: 'Pedidos',
@@ -76,34 +87,34 @@ const AdminDashboard: React.FC = () => {
         />
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard
             title="Receita Mensal"
-            value="R$ 1.2M"
+            value={formatCurrency(stats?.receitaMensal)}
             icon={DollarSign}
             color="green"
             description="+18% vs mês anterior"
           />
           <StatsCard
             title="Novos Leads"
-            value="24"
+            value={stats?.leadsCount?.toString() || '0'}
             icon={Users}
             color="blue"
             description="+12% este mês"
           />
           <StatsCard
-            title="Pedidos Ativos"
-            value="12"
-            icon={ShoppingCart}
+            title="Orçamentos"
+            value={stats?.orcamentosCount?.toString() || '0'}
+            icon={FileText}
             color="orange"
-            description="5 em produção"
+            description="Ativos este mês"
           />
           <StatsCard
-            title="Taxa Conversão"
-            value="42%"
-            icon={BarChart3}
+            title="Clientes"
+            value={stats?.clientesCount?.toString() || '0'}
+            icon={Building}
             color="purple"
-            description="+5% vs mês anterior"
+            description="Total cadastrados"
           />
         </div>
 
@@ -119,10 +130,10 @@ const AdminDashboard: React.FC = () => {
                   className="cursor-pointer hover:shadow-md transition-all duration-300 hover:-translate-y-1"
                   onClick={() => navigate(item.path)}
                 >
-                  <CardHeader className="pb-2 p-4 sm:p-6">
+                  <CardHeader className="pb-3 p-6">
                     <div className="flex items-center justify-between">
-                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl ${item.bgColor} flex items-center justify-center flex-shrink-0`}>
-                        <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${item.color}`} />
+                      <div className={`w-12 h-12 rounded-2xl ${item.bgColor} flex items-center justify-center shadow-lg flex-shrink-0 ring-1 ring-white/20`}>
+                        <Icon className={`h-6 w-6 ${item.color}`} />
                       </div>
                       <span className={`text-xl sm:text-2xl font-bold ${item.color}`}>{item.count}</span>
                     </div>
@@ -142,7 +153,7 @@ const AdminDashboard: React.FC = () => {
 
         {/* Recent Activity */}
         <Card>
-          <CardHeader className="p-4 sm:p-6">
+          <CardHeader className="p-6">
             <CardTitle className="text-base sm:text-lg">Atividades Recentes</CardTitle>
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0">

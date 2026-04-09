@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuração de diretório de logs
-const LOG_DIR = process.env.LOG_DIR || path.join(__dirname, '../../logs');
+const LOG_DIR = process.env.LOG_DIR || '/tmp/webside-logs';
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info'; // debug, info, warn, error
 const MAX_LOG_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_LOG_FILES = 5;
@@ -80,7 +80,7 @@ const writeToFile = (level, message, meta = {}) => {
   const metaStr = Object.keys(meta).length > 0 ? ` | ${JSON.stringify(meta)}` : '';
   const logLine = `[${timestamp}] [${level.toUpperCase()}] ${message}${metaStr}\n`;
   
-  fs.appendFileSync(logFile, logLine);
+  try { fs.appendFileSync(logFile, logLine); } catch(e) { console.log(`[LOG FILE ERROR] ${logLine.trim()}`); }
 };
 
 // Formata mensagem para console

@@ -1,10 +1,11 @@
-# TypeScript Fixes for Solution Pages
+# TypeScript Fixes - Workspace Problems
 
 ## Steps:
-- [x] 1. Create this TODO file
-- [x] 2. Add `features: string[];` to SolutionPageProps interface in frontend/src/components/SolutionPage.tsx
-- [x] 3. Verify all TS errors cleared
-- [x] 4. Test solution pages render features correctly
-- [x] 5. Mark complete and attempt_completion
+- [x] 1. Edit frontend/src/pages/Suporte.tsx: add Header import, React.FC<{}>, wrap with <Header /> and <main>
+- [x] 2. Create frontend/src/pages/ContatosSuporte.tsx with typed version
+- [x] 3. Verify no TS errors in diagnostics
+- [ ] 4. Restart TS server if needed
+- [ ] 5. Complete
 
-Current progress: Starting step 1.
+Current progress: Starting edits.
+

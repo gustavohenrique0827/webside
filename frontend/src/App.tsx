@@ -7,7 +7,7 @@ import { NotificationProvider } from "@/components/NotificationSystem";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import Leads from "./pages/admin/Leads";
 import Orcamentos from "./pages/admin/Orcamentos";
 import Pedidos from "./pages/admin/Pedidos";
@@ -35,7 +35,7 @@ const AppContent = () => (
 
       <Route path="/privacidade" element={<Privacidade />} />
       <Route path="/contatos-suporte" element={<ContatosSuporte />} />
-<Route path="/chat" element={<Chat />} />
+      <Route path="/chat" element={<Chat />} />
       <Route path="/sobre-nos" element={<SobreNos />} />
       <Route path="/solucoes" element={<SolucoesPage />} />
       <Route path="/wp-pdv" element={<WP_PDV />} />
@@ -127,6 +127,14 @@ const AppContent = () => (
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/gestao"
+        element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </>
@@ -138,8 +146,8 @@ const App = () => (
       <TooltipProvider>
         <AuthProvider>
           <NotificationProvider>
-  <BrowserRouter>
-<AppContent />
+            <BrowserRouter>
+              <AppContent />
             </BrowserRouter>
           </NotificationProvider>
         </AuthProvider>

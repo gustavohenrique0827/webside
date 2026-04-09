@@ -35,7 +35,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-primary/80 backdrop-blur">
         <div className="flex items-center justify-between px-3 sm:px-4 py-3">
@@ -71,7 +71,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
 
       <div className="flex">
         {/* Sidebar - Desktop */}
-        <aside className="hidden lg:flex w-64 flex-col border-r border-white/10 bg-white/5 backdrop-blur min-h-[calc(100vh-57px)]">
+        <aside className="hidden lg:flex w-64 flex-col border-r border-slate-200/50 bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-xl shadow-lg min-h-[calc(100vh-57px)]">
           <nav className="flex-1 p-4 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
@@ -82,8 +82,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
                   onClick={() => navigate(item.path)}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                     isActive 
-                      ? 'bg-accent text-accent-foreground' 
-                      : 'text-white/70 hover:bg-white/10 hover:text-white'
+              ? 'bg-blue-500/20 text-blue-100 shadow-md' 
+                      : 'text-slate-700 hover:bg-slate-100/50 hover:text-slate-900 hover:shadow-sm'
                   }`}
                 >
                   <Icon className="h-4 w-4 flex-shrink-0" />
@@ -118,7 +118,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
 
         {/* Main Content */}
         <main className="flex-1 w-full min-w-0 p-3 sm:p-4 md:p-6 pb-20 lg:pb-6">
-          <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 min-h-[calc(100vh-120px)] shadow-lg w-full overflow-x-hidden">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 shadow-xl border border-white/50 w-full overflow-x-hidden min-h-[calc(100vh-120px)]">
             {children}
           </div>
         </main>

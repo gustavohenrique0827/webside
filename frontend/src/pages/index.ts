@@ -2,11 +2,11 @@
 export { default as SolucoesPage } from './solucoes';
 export { default as Index } from './Index';
 export { default as Login } from './Login';
-export { default as AdminDashboard } from './AdminDashboard';
+export { default as AdminDashboard } from './admin/AdminDashboard.tsx';
 export { default as NotFound } from './NotFound';
 export { default as SobreNos } from './sobre-nos';
 export { default as Privacidade } from './privacidade';
-export { default as ContatosSuporte } from './ContatosSuporte';
+export { default as Suporte } from './Suporte';
 export { default as Chat } from './Chat.tsx';
 
 

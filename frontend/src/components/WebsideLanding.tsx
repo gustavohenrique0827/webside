@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Header from "./Header";
+import Footer from "./Footer";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronUp, Facebook, Instagram, Linkedin, MessageCircle, Check, Phone, MapPin, X } from "lucide-react";
+import { ChevronUp, MessageCircle, Check, Phone, MapPin, X, BookOpen } from "lucide-react";
 
 const historyContent = `A Webside Sistemas nasceu com o propósito de transformar a gestão de postos de combustíveis por meio da tecnologia. Atuamos para oferecer soluções eficazes, promover transparência e garantir controle completo, sempre com foco em proporcionar a melhor experiência ao revendedor.
 
@@ -15,7 +16,12 @@ Na Webside Sistemas, acreditamos que desafios são oportunidades. Nossa paixão 
 
 Vamos crescer juntos?`;
 
-type SolutionItem = { emoji: string; title: string; desc: string; tag: string };
+type SolutionItem = { 
+  emoji: string; 
+  title: string; 
+  desc: string; 
+  tag: string; 
+};
 
 const solutions: SolutionItem[] = [
   { emoji: "📊", title: "WP Gerencial", desc: "Controle total com relatórios gerenciais e visão estratégica.", tag: "Gestão" },
@@ -64,6 +70,7 @@ function maskPhone(value: string) {
   if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
 }
+
 function maskCnpj(value: string) {
   const d = value.replace(/\D/g, "").slice(0, 14);
   if (d.length <= 2) return d;
@@ -78,8 +85,10 @@ export default function WebsideLanding() {
   const [showTopButton, setShowTopButton] = useState(false);
   const [headerScrolled, setHeaderScrolled] = useState(false);
   const [imgError, setImgError] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ nome: "", email: "", telefone: "", cnpj: "", cidade: "", ideia: "", origem: "Site", accepted: false });
+const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [form, setForm] = useState({ nome: "", email: "", telefone:"", cnpj: "", cidade:"", ideia: "", origem: "Site", accepted: false });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showHistoryModal, setShowHistoryModal] = useState(false);
 
@@ -117,13 +126,47 @@ export default function WebsideLanding() {
     return Object.keys(e).length === 0;
   };
 
-  const onSubmit = (ev: React.FormEvent) => {
+  const onSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     if (!validateForm()) return;
-    setSubmitted(true);
+
+    setLoading(true);
+    setSubmitError("");
+
+    const leadData = {
+      nome_empresa: "Posto de Combustíveis", // Default, can be customized
+      cnpj: form.cnpj || null,
+      contato_principal: form.nome,
+      email_contato: form.email,
+      telefone_contato: form.telefone.replace(/\D/g, ""),
+      telefone_whatsapp: form.telefone.replace(/\D/g, ""),
+      contato_cargo: "Proprietário/Gestor",
+      fonte_lead: form.origem,
+      probabilidade: 30,
+      observacoes: `Cidade: ${form.cidade}`,
+      cliente_ideia: form.ideia
+    };
+
+    try {
+      const response = await fetch("http://localhost:3002/leads/public", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(leadData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erro ao enviar");
+      }
+
+      setSubmitted(true);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Erro de conexão");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Function to open chat - Opens helpdesk page in new tab
   const openChat = () => {
     window.open('https://helpdesk.websidesistemas.com.br/', '_blank', 'width=500,height=600,scrollbars=yes');
   };
@@ -150,7 +193,7 @@ export default function WebsideLanding() {
             </div>
           </div>
           <div className="flex justify-center">
-            <img src="/telas-webposto-home.png" alt="Telas do sistema WebPosto em múltiplos dispositivos" className="max-w-full md:max-w-[600px] lg:max-w-[700px] w-full h-auto rounded-2xl shadow-2xl ring-4 ring-white/20" onError={() => setImgError(true)} />
+            <img src="/telas-webposto-home.png" alt="Telas do sistema WebPosto em múltiplos dispositivos" className="max-w-full md:max-w-[600px] lg:max-w-[700px] w-full h-auto" onError={() => setImgError(true)} />
           </div>
         </div>
       </section>
@@ -163,13 +206,20 @@ export default function WebsideLanding() {
             {solutions.map((item) => (
               <article key={item.title} className="group rounded-xl bg-white p-5 shadow-sm hover:shadow-xl transition-all border border-[#e7ebef] relative overflow-hidden">
                 <div className="absolute left-0 top-0 h-1 w-0 bg-[#04A6F9] transition-all duration-300 group-hover:w-full" />
-                <div className="text-3xl">{item.emoji}</div><h3 className="mt-3 font-bold text-lg">{item.title}</h3>
-                <p className="mt-2 text-sm text-[#020234]/70">{item.desc}</p><span className="inline-block mt-3 rounded-full bg-[#04A6F9]/10 text-[#0284c7] text-xs px-3 py-1">{item.tag}</span>
+                <div className="text-3xl">{item.emoji}</div>
+                <h3 className="mt-3 font-bold text-lg">{item.title}</h3>
+                <p className="mt-2 text-sm text-[#020234]/70">{item.desc}</p>
+                <span className="inline-block mt-3 rounded-full bg-[#04A6F9]/10 text-[#0284c7] text-xs px-3 py-1">{item.tag}</span>
               </article>
             ))}
             <article className="rounded-xl bg-[#020234] p-6 border border-[#04A6F9] text-white flex flex-col justify-between">
-              <div><div className="text-2xl">✨</div><h3 className="mt-3 text-xl font-bold">Tem muito mais! Você precisa conhecer.</h3></div>
-              <button onClick={() => handleAnchorClick("#contato")} className="mt-6 rounded-full bg-[#04A6F9] px-5 py-2 font-semibold">Quero conhecer</button>
+              <div>
+                <div className="text-2xl">✨</div>
+                <h3 className="mt-3 text-xl font-bold">Tem muito mais! Você precisa conhecer.</h3>
+              </div>
+              <button onClick={() => handleAnchorClick("#contato")} className="mt-6 rounded-full bg-[#04A6F9] px-5 py-2 font-semibold">
+                Quero conhecer
+              </button>
             </article>
           </div>
         </div>
@@ -206,8 +256,12 @@ export default function WebsideLanding() {
               <li>✓ Filiais em MG, SP e GO para atendimento regional ágil</li>
             </ul>
             <div className="flex flex-wrap gap-4 mt-6">
-              <button onClick={() => setShowHistoryModal(true)} className="inline-block mt-6 rounded-full bg-[#020234] text-white px-5 py-3">Conheça Nossa História</button>
-              <button onClick={() => window.open('/sobre-nos', '_blank')} className="inline-block mt-6 rounded-full bg-[#020234] text-white px-5 py-3">Conheça mais a Webside</button>
+              <button onClick={() => setShowHistoryModal(true)} className="inline-block mt-6 rounded-full bg-[#020234] text-white px-5 py-3">
+                Conheça Nossa História
+              </button>
+              <button onClick={() => window.open('/sobre-nos', '_blank')} className="inline-block mt-6 rounded-full bg-[#020234] text-white px-5 py-3">
+                Conheça mais a Webside
+              </button>
             </div>
           </div>
         </div>
@@ -223,12 +277,13 @@ export default function WebsideLanding() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:gap-8 gap-6 md:gap-6">
+
             <a 
               href={whatsappSuporte}
               target="_blank"
               rel="noreferrer"
-              className="group rounded-2xl bg-[#25d366] p-8 text-white hover:bg-[#20bd5a] transition-all hover:scale-[1.02] hover:shadow-2xl"
+              className="group rounded-2xl bg-[#25d366] p-10 text-white hover:bg-[#20bd5a] transition-all hover:scale-[1.02] hover:shadow-2xl"
             >
               <div className="flex items-center gap-4">
                 <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
@@ -242,11 +297,12 @@ export default function WebsideLanding() {
               <p className="mt-4 text-white/80 text-sm">Clique para iniciar uma conversa</p>
             </a>
 
-<a 
+            <a 
               href="/chat"
               target="_blank"
               rel="noreferrer"
-              className="group rounded-2xl bg-[#04A6F9] p-8 text-white hover:bg-[#0284c7] transition-all hover:scale-[1.02] hover:shadow-2xl"
+              className="group rounded-2xl bg-[#04A6F9] p-8 sm:p-10 text-white hover:bg-[#0284c7] transition-all hover:scale-[1.02] hover:shadow-2xl flex flex-col lg:flex-row items-center lg:items-start gap-4 lg:gap-6 text-left lg:text-left"
+
             >
               <div className="flex items-center gap-4">
                 <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
@@ -260,7 +316,23 @@ export default function WebsideLanding() {
               <p className="mt-4 text-white/80 text-sm">Atendimento em tempo real</p>
             </a>
 
-
+            <a 
+              href="/suporte" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="support-card group rounded-2xl bg-gradient-to-r from-[#1da1f2] via-[#0d5bb5] to-[#0a1f63] p-10 text-white hover:from-[#0d5bb5] hover:to-[#0a1f63] transition-all hover:scale-[1.02] hover:shadow-2xl flex flex-col lg:flex-row items-center lg:items-start gap-6 lg:gap-4 text-left md:text-left"
+            >
+              <div className="flex items-center gap-4">
+                <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
+                  <BookOpen size={32} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">Material de Apoio ao cliente</h3>
+                  <p className="text-white/90">Todos os canais de atendimento</p>
+                </div>
+              </div>
+              <p className="mt-4 text-white/80 text-sm">Documentos, informações do Suporte e EAD</p>
+            </a>
           </div>
 
           <div className="mt-10">
@@ -289,8 +361,6 @@ export default function WebsideLanding() {
               </div>
             </div>
           </div>
-
-
         </div>
       </section>
 
@@ -298,7 +368,7 @@ export default function WebsideLanding() {
         <div className="mx-auto max-w-7xl px-4 grid md:grid-cols-2 gap-10">
           <div>
             <h3 className="text-3xl font-bold">Vamos crescer juntos?</h3>
-            <p className="mt-3 text-[#020234]/75">Deixe seus dados e em breve um especialista entrará em contato.</p>
+            <p className="mt-4 text-[#020234]/75">Deixe seus dados e em breve um especialista entrará em contato.</p>
             <div className="mt-6 rounded-xl bg-[#25d366] p-5 text-white">
               <p>Você pode também entrar em contato e falar com nosso time de especialistas.</p>
               <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 mt-4 rounded-full bg-white text-[#128c7e] px-5 py-2 font-semibold hover:bg-[#f0f0f0] transition-colors">
@@ -334,30 +404,51 @@ export default function WebsideLanding() {
           <div className="rounded-xl bg-white p-6 shadow-md">
             {!submitted ? (
               <form onSubmit={onSubmit} className="space-y-4">
-<input type="hidden" name="origem" value="Site" />
+                <input type="hidden" name="origem" value="Site" />
                 <div>
                   <label className="block text-sm mb-1">Nome completo *</label>
-                  <input className="w-full border rounded-lg px-3 py-2" value={form.nome} onChange={(e) => setForm((p) => ({ ...p, nome: e.target.value }))} />
+                  <input 
+                    className="w-full border rounded-lg px-3 py-2" 
+                    value={form.nome} 
+                    onChange={(e) => setForm((p) => ({ ...p, nome: e.target.value }))} 
+                  />
                   {errors.nome && <p className="text-red-600 text-xs mt-1">{errors.nome}</p>}
                 </div>
                 <div>
                   <label className="block text-sm mb-1">E-mail *</label>
-                  <input type="email" className="w-full border rounded-lg px-3 py-2" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} />
+                  <input 
+                    type="email" 
+                    className="w-full border rounded-lg px-3 py-2" 
+                    value={form.email} 
+                    onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} 
+                  />
                   {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Telefone/WhatsApp *</label>
-                  <input className="w-full border rounded-lg px-3 py-2" value={form.telefone} onChange={(e) => setForm((p) => ({ ...p, telefone: maskPhone(e.target.value) }))} />
+                  <input 
+                    className="w-full border rounded-lg px-3 py-2" 
+                    value={form.telefone} 
+                    onChange={(e) => setForm((p) => ({ ...p, telefone: maskPhone(e.target.value) }))} 
+                  />
                   {errors.telefone && <p className="text-red-600 text-xs mt-1">{errors.telefone}</p>}
                 </div>
                 <div>
                   <label className="block text-sm mb-1">CNPJ da empresa</label>
-                  <input className="w-full border rounded-lg px-3 py-2" value={form.cnpj} onChange={(e) => setForm((p) => ({ ...p, cnpj: maskCnpj(e.target.value) }))} />
+                  <input 
+                    className="w-full border rounded-lg px-3 py-2" 
+                    value={form.cnpj} 
+                    onChange={(e) => setForm((p) => ({ ...p, cnpj: maskCnpj(e.target.value) }))} 
+                  />
                   {errors.cnpj && <p className="text-red-600 text-xs mt-1">{errors.cnpj}</p>}
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Cidade *</label>
-                  <input className="w-full border rounded-lg px-3 py-2" value={form.cidade} onChange={(e) => setForm((p) => ({ ...p, cidade: e.target.value }))} />
+                  <input 
+                    className="w-full border rounded-lg px-3 py-2" 
+                    value={form.cidade} 
+                    onChange={(e) => setForm((p) => ({ ...p, cidade: e.target.value }))} 
+                  />
                   {errors.cidade && <p className="text-red-600 text-xs mt-1">{errors.cidade}</p>}
                 </div>
                 <div>
@@ -370,16 +461,34 @@ export default function WebsideLanding() {
                   />
                 </div>
                 <label className="flex items-start gap-2 text-sm">
-                  <input type="checkbox" checked={form.accepted} onChange={(e) => setForm((p) => ({ ...p, accepted: e.target.checked }))} />
-<span>Ao informar meus dados, eu concordo com a <a href="/privacidade" target="_blank" rel="noreferrer" className="underline">Política de Privacidade</a>.</span>
+                  <input 
+                    type="checkbox" 
+                    checked={form.accepted} 
+                    onChange={(e) => setForm((p) => ({ ...p, accepted: e.target.checked }))} 
+                  />
+                  <span>
+                    Ao informar meus dados, eu concordo com a <a href="/privacidade" target="_blank" rel="noreferrer" className="underline">Política de Privacidade</a>.
+                  </span>
                 </label>
                 {errors.accepted && <p className="text-red-600 text-xs -mt-2">{errors.accepted}</p>}
-                <button className="w-full rounded-lg bg-[#020234] text-white py-3 hover:bg-[#04A6F9]">Enviar Solicitação</button>
+                <button 
+                  type="submit" 
+                  disabled={loading || submitted}
+                  className="w-full rounded-lg bg-[#020234] text-white py-3 hover:bg-[#04A6F9] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Enviando..." : "Enviar Solicitação"}
+                </button>
+                {submitError && (
+                  <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                    {submitError}
+                  </div>
+                )}
               </form>
             ) : (
               <div className="rounded-xl bg-[#ecfeff] border border-[#67e8f9] p-5">
                 <h4 className="font-bold text-lg flex items-center gap-2">
-                  <Check size={18} />Solicitação enviada com sucesso!
+                  <Check size={18} />
+                  Solicitação enviada com sucesso!
                 </h4>
                 <p className="mt-2 text-[#164e63]">Obrigado pelo contato. Um especialista falará com você em breve.</p>
               </div>
@@ -388,54 +497,14 @@ export default function WebsideLanding() {
         </div>
       </section>
 
-      <footer className="bg-[#020234] text-white">
-        <div className="mx-auto max-w-7xl px-4 py-10 grid md:grid-cols-4 gap-8">
-          <div>
-            <img src="/webside-logo-rodape.png" alt="Webside Sistemas" className="h-11 w-auto" />
-            <p className="mt-3 text-white/80">Especialistas em tecnologia para postos de combustíveis.</p>
-            <div className="mt-4 flex gap-3">
-              <a href="https://www.instagram.com/websidesistemas/" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={20} /></a>
-              <a href="https://www.facebook.com/websidesistemas" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook size={20} /></a>
-              <a href="https://www.linkedin.com/company/websidesistemas" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={20} /></a>
-              <a href="https://wa.me/5534992990408?text=Venho%20pelo%20site%2C%20quero%20saber%20mais" target="_blank" rel="noreferrer" aria-label="WhatsApp"><MessageCircle size={20} /></a>
-            </div>
-          </div>
-          <div>
-            <h5 className="font-semibold mb-3">Navegação</h5>
-            <ul className="space-y-2 text-white/85">
-              <li><button onClick={() => handleAnchorClick("#home")}>Home</button></li>
-              <li><button onClick={() => handleAnchorClick("#solucoes")}>Soluções</button></li>
-              <li><Link to="/sobre-nos">Sobre Nós</Link></li>
-              <li><button onClick={() => handleAnchorClick("#suporte")}>Suporte</button></li>
-              <li><button onClick={() => handleAnchorClick("#contato")}>Contato</button></li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-semibold mb-3">Soluções</h5>
-            <ul className="space-y-2 text-white/85">
-              <li>WP PDV</li>
-              <li>WP Mobile</li>
-              <li>WP Frota</li>
-              <li>WP Dashboard</li>
-              <li>WP PIX</li>
-              <li>WP I.A</li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-semibold mb-3">Filiais + Legal</h5>
-            <ul className="space-y-2 text-white/85">
-              <li><a target="_blank" rel="noreferrer" href={maps.mg}>🗺️ Filial Minas Gerais</a></li>
-              <li><a target="_blank" rel="noreferrer" href={maps.sp}>🗺️ Filial São Paulo</a></li>
-              <li><a target="_blank" rel="noreferrer" href={maps.go}>🗺️ Filial Goiás</a></li>
-              <li><a href="/privacidade" target="_blank" rel="noreferrer">Política de Privacidade</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="text-center py-5 border-t border-white/10 text-sm text-white/70">{footerYearText}</div>
-      </footer>
+      <Footer />
 
       {showTopButton && (
-        <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="fixed bottom-6 right-6 h-11 w-11 rounded-full bg-[#04A6F9] text-white shadow-lg flex items-center justify-center" aria-label="Voltar ao topo">
+        <button 
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} 
+          className="fixed bottom-6 right-6 h-11 w-11 rounded-full bg-[#04A6F9] text-white shadow-lg flex items-center justify-center" 
+          aria-label="Voltar ao topo"
+        >
           <ChevronUp size={20} />
         </button>
       )}
@@ -444,7 +513,7 @@ export default function WebsideLanding() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowHistoryModal(false)}>
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="p-6 md:p-8">
-                <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-[#020234]">Nossa História</h2>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setShowHistoryModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">

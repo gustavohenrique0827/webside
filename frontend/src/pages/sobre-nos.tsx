@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Header from "../components/Header";
+import Footer from "../components/Footer";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Linkedin, MessageCircle, Star, Users, Award, MapPin, Rocket, Handshake, Eye, Shield, TrendingUp, Target, X } from "lucide-react";
@@ -27,14 +28,13 @@ const whatsappComercial = "https://wa.me/5511988934345?text=Venho%20pelo%20site%
 export default function SobreNosPage() {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
 
-  const handleAnchorClick = (href: string) => {
-    const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  useEffect(() => {
+    document.documentElement.style.scrollBehavior = "smooth";
+  }, []);
 
   return (
     <div className="min-h-screen bg-white text-[#020234]">
-<Header onAnchorClick={handleAnchorClick} />
+      <Header />
       
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-[#020234] to-[#04176b] text-white py-20">
@@ -82,7 +82,6 @@ export default function SobreNosPage() {
               <p className="text-4xl font-bold text-[#04A6F9]">+3.000</p>
               <p className="text-white/80">Clientes atendidos</p>
             </div>
-
           </div>
         </div>
       </section>
@@ -311,48 +310,7 @@ export default function SobreNosPage() {
         </div>
       </section>
 
-      <footer className="bg-[#020234] text-white">
-        <div className="mx-auto max-w-7xl px-4 py-10 grid md:grid-cols-4 gap-8">
-          <div>
-            <img src="/webside-logo-rodape.png" alt="Webside Sistemas" className="h-11 w-auto" />
-            <p className="mt-3 text-white/80">Especialistas em tecnologia para postos de combustíveis.</p>
-            <div className="mt-4 flex gap-3">
-              <a href="https://www.instagram.com/websidesistemas/" target="_blank" rel="noreferrer"><Instagram /></a>
-              <a href="https://www.facebook.com/websidesistemas" target="_blank" rel="noreferrer"><Facebook /></a>
-              <a href="https://www.linkedin.com/company/websidesistemas" target="_blank" rel="noreferrer"><Linkedin /></a>
-              <a href="https://wa.me/5534992990408?text=Venho%20pelo%20site%2C%20quero%20saber%20mais" target="_blank" rel="noreferrer"><MessageCircle /></a>
-            </div>
-          </div>
-          <div>
-            <h5 className="font-semibold mb-3">Navegação</h5>
-            <ul className="space-y-2 text-white/80">
-              <li><Link to="/">Home</Link></li>
-              <li><a href="/#solucoes">Soluções</a></li>
-              <li><Link to="/sobre-nos">Sobre Nós</Link></li>
-              <li><a href="/#suporte">Suporte</a></li>
-              <li><a href="/#contato">Contato</a></li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-semibold mb-3">Soluções</h5>
-            <ul className="space-y-2 text-white/80">
-              <li>WP PDV</li><li>WP Mobile</li><li>WP Frota</li><li>WP Dashboard</li><li>WP PIX</li><li>WP I.A</li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-semibold mb-3">Filiais + Legal</h5>
-            <ul className="space-y-2 text-white/80">
-              <li><a href={maps.mg} target="_blank" rel="noreferrer">🗺️ Filial Minas Gerais</a></li>
-              <li><a href={maps.sp} target="_blank" rel="noreferrer">🗺️ Filial São Paulo</a></li>
-              <li><a href={maps.go} target="_blank" rel="noreferrer">🗺️ Filial Goiás</a></li>
-              <li><Link to="/privacidade" target="_blank" rel="noreferrer">Política de Privacidade</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className="text-center py-5 border-t border-white/10 text-sm text-white/70">
-          Copyright © 2011-2026 | Webside Consultoria e Sistemas Ltda — Todos os direitos reservados — CNPJ: 35.277.090/0001-47
-        </div>
-      </footer>
+      <Footer />
 
       {showHistoryModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowHistoryModal(false)}>

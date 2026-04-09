@@ -62,7 +62,29 @@ router.get('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// Create lead
+// Public create lead (for Oferta form)
+router.post('/public', async (req, res) => {
+  try {
+    const { nome_empresa, cnpj, contato_principal, email_contato, telefone_contato, fonte_lead, probabilidade, observacoes } = req.body;
+
+    if (!nome_empresa || !contato_principal) {
+      return res.status(400).json({ error: 'Nome da empresa e contato principal são obrigatórios' });
+    }
+
+    const [result] = await pool.query(
+      `INSERT INTO leads (nome_empresa, cnpj, contato_principal, email_contato, telefone_contato, fonte_lead, probabilidade, observacoes, id_status) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 12)`,
+      [nome_empresa, cnpj, contato_principal, email_contato, telefone_contato, fonte_lead || 'Oferta Web', probabilidade || 30, observacoes || '', 12]
+    );
+
+    res.status(201).json({ id: result.insertId, message: 'Lead criado com sucesso' });
+  } catch (error) {
+    console.error('Public create lead error:', error);
+    res.status(500).json({ error: 'Erro ao criar lead' });
+  }
+});
+
+// Authenticated create lead
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const { nome_empresa, cnpj, contato_principal, email_contato, telefone_contato, fonte_lead, probabilidade, valor_estimado, observacoes, id_empresa } = req.body;

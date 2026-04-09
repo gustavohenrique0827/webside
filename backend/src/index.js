@@ -6,6 +6,8 @@ const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 // Import logger
 const { logger, requestLogger } = require('./config/logger');
@@ -13,24 +15,44 @@ const { logger, requestLogger } = require('./config/logger');
 // Load environment variables
 dotenv.config();
 
-// Import GraphQL resolvers
-const { Query, Mutation } = require('./graphql/resolvers');
+// Import GraphQL resolvers (merged)
+const resolvers = require('./graphql/resolvers');
 
 const app = express();
-const JWT_SECRET = process.env.JWT_SECRET || 'webside-secret-key';
+app.set('trust proxy', 1);
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  logger.error('JWT_SECRET environment variable is required');
+  process.exit(1);
+}
 
 //========================= MIDDLEWARE =========================
 
 // Request logger
 app.use(requestLogger);
 
-// CORS
-app.use(cors());
-logger.info('CORS middleware configurado');
+// Security headers
+app.use(helmet());
 
-// JSON e URL encoded
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP'
+});
+app.use('/graphql', apiLimiter);
+app.use('/public', apiLimiter);
+
+// CORS - restricted origins
+app.use(cors({
+  origin: process.env.FRONTEND_URL || ['http://localhost:5173', 'http://localhost:80', 'http://129.121.39.130', 'http://129.121.39.130:80', 'http://129.121.39.130:8080'],
+  credentials: true
+}));
+logger.info('Security middlewares and CORS configurados');
+
+// JSON e URL encoded with limits
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 logger.debug('Middleware JSON e URL encoded configurados');
 
 //========================= HEALTH CHECKS =========================
@@ -73,10 +95,7 @@ const context = async ({ req }) => {
 // Create Apollo Server
 const server = new ApolloServer({
   typeDefs,
-  resolvers: {
-    Query,
-    Mutation,
-  },
+  resolvers,
 });
 
 async function startServer() {
@@ -105,7 +124,8 @@ async function startServer() {
     res.status(500).json({ error: 'Algo deu errado!' });
   });
 
-  const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 5000;
+
 
   app.listen(PORT, () => {
     logger.info(`

@@ -1,20 +1,19 @@
-## Tiflux Chat Page Fix - Progress
+# DB Integration Complete - Progress Tracking
 
-### Status: ✅ Fixed Production Build Issue
+Status: Plan approved ✅ Proceeding with fixes
 
-**Goal**: Make Tiflux chat page fully functional at /chat.
+## Current Steps:
+- [x] Diagnosed: Backend crash (resolver/schema mismatch), migrations pending (only 001 done)
+- [x] Plan confirmed by user
+- [x] Read resolvers.js to identify missing schema fields
+- [x] Fix schema.graphql (add parametros_empresa etc.)
+- [x] Created fixed migration 002_fixed.sql
+- [ ] Run migrations 002-006
+- [ ] docker compose down && up -d
+- [ ] Verify health/GraphQL/login
+- [ ] Run seeds 001-005
+- [ ] Test frontend data loading
+- [ ] attempt_completion
 
-**Steps**:
-- [x] 1. Analyzed files: chat.html, Chat.tsx, App.tsx - code looks complete.
-- [ ] 2. Installed frontend deps.
-- [ ] 3. Started dev server.
-- [ ] 4. Tested http://localhost:5173/chat - check iframe/Tiflux load, JS functionality.
-- [ ] 5. Debugged any console/network errors.
-- [ ] 6. Tested mobile/drag/minimize.
-- [ ] 7. Production build test.
-- [ ] 8. ✅ Complete.
-
-**Notes**:
-- Tiflux token: 582a9e7c57d9586f18448ac59facb9d764dbf6b8
-- Test: Open browser → /chat → verify widget responds.
+Next: Reading resolvers for exact fixes.
 

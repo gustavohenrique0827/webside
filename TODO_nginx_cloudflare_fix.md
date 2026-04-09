@@ -1,0 +1,1 @@
+# TODO: NGINX Cloudflare 521 Fix\n\n- [x] Create TODO\n- [ ] Edit docker/nginx.production.conf (server_name)\n- [ ] Edit docker/nginx.conf\n- [ ] Edit nginx.conf\n- [ ] docker-compose down & up -d --build\n- [ ] Test curl -H \"Host: www.websidesistemas.com.br\" http://localhost\n- [ ] Verify Cloudflare DNS/SSL settings

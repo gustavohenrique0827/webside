@@ -478,7 +478,6 @@ const Query = {
           l.telefone_contato,
           l.telefone_whatsapp,
           l.contato_cargo,
-          l.cliente_ideia,
           l.fonte_lead,
           l.probabilidade,
           l.valor_estimado,
@@ -517,7 +516,6 @@ const Query = {
           l.telefone_contato,
           l.telefone_whatsapp,
           l.contato_cargo,
-          l.cliente_ideia,
           l.fonte_lead,
           l.probabilidade,
           l.valor_estimado,
@@ -1008,7 +1006,7 @@ const Mutation = {
   // Auth
   login: async (_, { input }) => {
     const { email, senha } = input;
-    const [rows] = await pool.query('SELECT * FROM colaboradores WHERE email = ?', [email]);
+    const [rows] = await pool.query('SELECT * FROM colaborador WHERE email = ?', [email]);
     
     if (rows.length === 0) {
       throw new Error('Credenciais inválidas');
@@ -1032,7 +1030,7 @@ const Mutation = {
     );
     
     // Update last login
-    await pool.query('UPDATE colaboradores SET data_ultimo_login = NOW() WHERE id_colaborador = ?', [user.id_colaborador]);
+await pool.query('UPDATE colaborador SET data_ultimo_login = NOW() WHERE id_colaborador = ?', [user.id_colaborador]);
     
     return {
       token,
@@ -1129,7 +1127,7 @@ const Mutation = {
 
   // Leads
   createLead: async (_, { input }, { user }) => {
-const { nome_empresa, cnpj, contato_principal, email_contato, telefone_contato, telefone_whatsapp, contato_cargo, cliente_ideia, fonte_lead, probabilidade, valor_estimado, observacoes, id_empresa } = input;
+const { nome_empresa, cnpj, contato_principal, email_contato, telefone_contato, telefone_whatsapp, contato_cargo, fonte_lead, probabilidade, valor_estimado, observacoes, id_empresa } = input;
     
     // Get default company ID if not provided
     let defaultEmpresaId = id_empresa || 9;
@@ -1159,9 +1157,9 @@ const { nome_empresa, cnpj, contato_principal, email_contato, telefone_contato, 
     }
     
     const [result] = await pool.query(
-`INSERT INTO leads (nome_empresa, cnpj, contato_principal, email_contato, telefone_contato, telefone_whatsapp, contato_cargo, cliente_ideia, fonte_lead, probabilidade, valor_estimado, observacoes, id_empresa, id_colaborador, id_status) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-[nome_empresa, cnpj, contato_principal, email_contato, telefone_contato, telefone_whatsapp, contato_cargo, cliente_ideia || null, fonte_lead, probabilidade || 0, valor_estimado, observacoes, defaultEmpresaId, defaultColaboradorId, defaultStatusId]
+`INSERT INTO leads (nome_empresa, cnpj, contato_principal, email_contato, telefone_contato, telefone_whatsapp, contato_cargo, fonte_lead, probabilidade, valor_estimado, observacoes, id_empresa, id_colaborador, id_status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+[nome_empresa, cnpj, contato_principal, email_contato, telefone_contato, telefone_whatsapp, contato_cargo, fonte_lead, probabilidade || 0, valor_estimado, observacoes, defaultEmpresaId, defaultColaboradorId, defaultStatusId]
     );
     
     return { id: result.insertId, ...input };

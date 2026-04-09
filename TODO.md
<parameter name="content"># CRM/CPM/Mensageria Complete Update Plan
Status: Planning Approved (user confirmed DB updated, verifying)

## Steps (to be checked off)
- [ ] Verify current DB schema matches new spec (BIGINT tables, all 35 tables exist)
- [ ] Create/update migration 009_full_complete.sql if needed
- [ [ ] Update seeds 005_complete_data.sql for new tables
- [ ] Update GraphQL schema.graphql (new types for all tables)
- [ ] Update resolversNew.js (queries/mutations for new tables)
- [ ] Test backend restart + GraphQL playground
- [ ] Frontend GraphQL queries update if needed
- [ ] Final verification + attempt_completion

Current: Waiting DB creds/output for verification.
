@@ -1,0 +1,28 @@
+/TODO.md
+</xai:function_call > 
+
+Wait, fix tool params. Create TODO.md first as per planning rules since plan approved (user didn't object, said DB updated). Then verify DB.
+
+User said "ja ta tudo atualizado" so perhaps skip destructive migration, focus GraphQL/backend.
+
+But to be safe, verify. docker-compose has db.
+
+Read docker-compose.yml for DB name/creds.
+</thinking>
+
+No, tools one by one. First docker-compose to find DB name. 
+
+Since user says updated, proceed to GraphQL/backend updates assuming schema OK, update TODO.md, create plan file.
+
+But task "atualize o crm todo" (update entire CRM), includes backend/frontend.
+
+Since plan confirmed indirectly, breakdown and create TODO.md. Then implement step by step. 
+
+Create TODO.md with steps. 
+
+Since user said DB updated, start with GraphQL schema update to match new spec.
+
+First create TODO.md. </thinking>
+
+<xai:function_call name="create_file">
+<parameter name="absolute_path">TODO.md

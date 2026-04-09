@@ -6,11 +6,17 @@ import { setContext } from '@apollo/client/link/context';
 // In development (npm run dev): uses Vite proxy to forward /graphql to localhost:3000
 // In production (Docker): nginx proxies /graphql to backend:3000
 const getGraphQLUrl = () => {
-  // If explicitly set via env var, use it
+  // Development: always use Vite proxy to backend port 3002
+  if (import.meta.env.DEV) {
+    console.log('✅ Development: Using Vite proxy /graphql → http://localhost:3002/graphql');
+    return '/graphql';
+  }
+  // Production/Docker/nginx: use env or relative proxy
   if (import.meta.env.VITE_GRAPHQL_URL) {
+    console.log(`Production: Using GraphQL URL ${import.meta.env.VITE_GRAPHQL_URL}`);
     return import.meta.env.VITE_GRAPHQL_URL;
   }
-  // Use relative path - works with both Vite proxy (dev) and nginx (production)
+  console.log('Using relative /graphql (nginx proxy)');
   return '/graphql';
 };
 
