@@ -1,211 +1,80 @@
-import React, { useState, useEffect } from 'react';
-import AdminLayout from '@/components/AdminLayout';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { User, Mail, Briefcase, Building2, Save, Edit, Loader2 } from 'lucide-react';
-import { useProfile, useUpdateProfile } from '@/hooks/useGraphQL';
-import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Camera, Mail, Phone, User } from 'lucide-react';
 
-interface UserProfile {
-  id: number;
-  nome: string;
-  email: string;
-  cargo?: string;
-  departamento?: string;
-  tipo: string;
-}
-
-const Perfil: React.FC = () => {
-  const { toast } = useToast();
-  const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    nome: '',
-    email: '',
-    cargo: '',
-    departamento: ''
-  });
-
-  // GraphQL hooks
-  const { user: profile, loading, refetch } = useProfile();
-  const updateProfile = useUpdateProfile();
-
-  useEffect(() => {
-    if (profile) {
-      setFormData({
-        nome: profile.nome_completo || '',
-        email: profile.email || '',
-        cargo: profile.tipo_colaborador || '',
-        departamento: ''
-      });
-    }
-  }, [profile]);
-
-  const handleSave = async () => {
-    try {
-      await updateProfile.mutate({
-        variables: {
-          input: {
-            nome_completo: formData.nome,
-            email: formData.email,
-            telefone: ''
-          }
-        }
-      });
-      refetch();
-      setEditing(false);
-      toast({
-        title: 'Sucesso',
-        description: 'Perfil atualizado com sucesso.',
-      });
-    } catch (error) {
-      console.error('Erro ao atualizar perfil:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível atualizar o perfil.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleCancel = () => {
-    setFormData({
-      nome: profile?.nome_completo || '',
-      email: profile?.email || '',
-      cargo: profile?.tipo_colaborador || '',
-      departamento: ''
-    });
-    setEditing(false);
-  };
-
-  if (loading) {
-    return (
-      <AdminLayout title="Perfil do Usuário">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto" />
-            <p className="mt-2 text-muted-foreground">Carregando perfil...</p>
-          </div>
-        </div>
-      </AdminLayout>
-    );
-  }
+const Perfil = () => {
+  const [nome, setNome] = useState('João Silva');
+  const [email, setEmail] = useState('joao@webside.com.br');
+  const [telefone, setTelefone] = useState('(34) 99999-9999');
 
   return (
-    <AdminLayout title="Perfil do Usuário">
-      <div className="max-w-2xl mx-auto space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Suas informações pessoais
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="nome" className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Nome Completo *
-                </Label>
-                {editing ? (
-                  <Input
-                    id="nome"
-                    value={formData.nome}
-                    onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                    required
-                  />
-                ) : (
-                  <p className="text-sm font-medium">{profile?.nome || 'Administrador'}</p>
-                )}
+    <div className="container mx-auto p-6 max-w-2xl">
+      <h1 className="text-3xl font-bold tracking-tight mb-8">Meu Perfil</h1>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Informações Pessoais</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center gap-6">
+            <div className="flex flex-col items-center">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src="/avatar.jpg" />
+                <AvatarFallback>JS</AvatarFallback>
+              </Avatar>
+              <Button variant="ghost" size="sm" className="mt-2">
+                <Camera className="mr-2 h-4 w-4" />
+                Alterar foto
+              </Button>
+            </div>
+            <div className="space-y-4 flex-1">
+              <div>
+                <label className="block text-sm font-medium mb-2">Nome completo</label>
+                <Input value={nome} onChange={(e) => setNome(e.target.value)} />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email" className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  E-mail *
-                </Label>
-                {editing ? (
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                  />
-                ) : (
-                  <p className="text-sm font-medium">{profile?.email || 'admin@empresa.com'}</p>
-                )}
+              <div>
+                <label className="block text-sm font-medium mb-2">Email</label>
+                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cargo" className="flex items-center gap-2">
-                  <Briefcase className="h-4 w-4" />
-                  Cargo
-                </Label>
-                {editing ? (
-                  <Input
-                    id="cargo"
-                    value={formData.cargo}
-                    onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
-                  />
-                ) : (
-                  <p className="text-sm font-medium">{profile?.cargo || 'Não informado'}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="departamento" className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4" />
-                  Departamento
-                </Label>
-                {editing ? (
-                  <Input
-                    id="departamento"
-                    value={formData.departamento}
-                    onChange={(e) => setFormData({ ...formData, departamento: e.target.value })}
-                  />
-                ) : (
-                  <p className="text-sm font-medium">{profile?.departamento || 'Não informado'}</p>
-                )}
+              <div>
+                <label className="block text-sm font-medium mb-2">Telefone/WhatsApp</label>
+                <Input value={telefone} onChange={(e) => setTelefone(e.target.value)} />
               </div>
             </div>
+          </div>
 
-            <Separator />
+          <div className="flex gap-3 pt-4">
+            <Button className="flex-1">Salvar Alterações</Button>
+            <Button variant="outline" className="flex-1">Alterar Senha</Button>
+          </div>
+        </CardContent>
+      </Card>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Tipo de usuário:</span>
-                <Badge variant="secondary">{profile?.tipo || 'Administrador'}</Badge>
-              </div>
-
-              <div className="flex gap-2">
-                {editing ? (
-                  <>
-                    <Button variant="outline" onClick={handleCancel}>
-                      Cancelar
-                    </Button>
-                    <Button onClick={handleSave}>
-                      <Save className="h-4 w-4 mr-2" />
-                      Salvar
-                    </Button>
-                  </>
-                ) : (
-                  <Button onClick={() => setEditing(true)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Editar
-                  </Button>
-                )}
-              </div>
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Preferências</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Notificações
+              </h3>
+              <p className="text-sm text-muted-foreground">Receber notificações por email e WhatsApp</p>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </AdminLayout>
+            <Switch />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
 export default Perfil;
+
+

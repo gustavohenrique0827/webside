@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Filial {
+  idFilial          BigInt     @id @default(autoincrement())
+  cnpj              String     @unique
+  razaoSocial       String
+  nomeFantasia      String?
+  telefone          String?
+  whatsapp          String?
+  email             String?
+  baseSm            Decimal    @db.Decimal(10, 2)
+  ativo             Boolean    @default(true)
+  dataCriacao       DateTime   @default(now())
+  dataAtualizacao   DateTime   @updatedAt
+  departamentos     Departamento[]
+  colaboradores     Colaborador[]
+  filialSmHistorico FilialSmHistorico[]
+
+  @@map("filial")
+}
+
+model Colaborador {
+  idColaborador   BigInt       @id @default(autoincrement())
+  idFilial        BigInt
+  idDepartamento  BigInt?
+  idPerfil        BigInt
+  nome            String
+  email           String       @unique
+  senhaHash       String
+  tipoColaborador String?      @db.VarChar(20)
+  cargo           String?
+  ativo           Boolean      @default(true)
+  dataCadastro     DateTime     @default(now())
+  dataUltimoLogin  DateTime?
+  filial          Filial       @relation(fields: [idFilial], references: [idFilial])
+  perfil          PerfilAcesso @relation(fields: [idPerfil], references: [idPerfil])
+
+  @@map("colaborador")
+}
+
+// Add more models from schema...
+

@@ -1,0 +1,4 @@
+FROM mysql:8.0
+
+COPY database/crm_cpm_mensageria_schema_complete.sql /docker-entrypoint-initdb.d/1-schema.sql
+COPY database/seeds/*.sql /docker-entrypoint-initdb.d/
