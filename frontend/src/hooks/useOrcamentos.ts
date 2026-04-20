@@ -133,11 +133,11 @@ export function useCreateOrcamento() {
 
       console.log('CreateOrcamento result:', result);
       console.log('CreateOrcamento result.data:', result?.data);
-      console.log('CreateOrcamento result.error:', result?.error);
+console.log('CreateOrcamento result.errors:', result?.errors);
       
       if (!result.data) {
-        if (result.error) {
-          throw new Error(`GraphQL Error: ${result.error.message}`);
+if (result.errors && result.errors.length > 0) {
+throw new Error(`GraphQL Error: ${result.errors?.[0]?.message || 'Unknown error'}`);
         }
         throw new Error('No data returned from mutation');
       }

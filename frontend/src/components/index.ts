@@ -1,5 +1,5 @@
 // Components barrel export
-export * from './AdminLayout';
+// export * from './AdminLayout'; // File missing
 export * from './ErrorBoundary';
 export * from './LoadingSpinner';
 export * from './MeetingMinutesGenerator';

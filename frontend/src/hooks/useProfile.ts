@@ -5,7 +5,7 @@ import { UPDATE_PROFILE } from '../graphql/mutations';
 import { useAuth } from '../contexts/AuthContext';
 
 export function useProfile() {
-  const { user, setUser } = useAuth();
+  const { user, setUser }: { user: any; setUser: any } = useAuth() as any;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 

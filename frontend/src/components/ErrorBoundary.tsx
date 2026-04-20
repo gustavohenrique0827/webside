@@ -14,17 +14,6 @@ interface State {
   errorInfo: ErrorInfo | null;
 }
 
-/**
- * ErrorBoundary Component
- * 
- * Catches JavaScript errors anywhere in the child component tree,
- * logs those errors, and displays a fallback UI instead of crashing the whole app.
- * 
- * Usage:
- * <ErrorBoundary>
- *   <YourComponent />
- * </ErrorBoundary>
- */
 class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -36,7 +25,6 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): State {
-    // Update state so the next render will show the fallback UI
     return {
       hasError: true,
       error,
@@ -45,7 +33,6 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Check if this is a known Radix UI error (Tabs, Select, Dialog, Popover, etc.)
     const errorMessage = error.message?.toLowerCase() || '';
     const errorName = error.name?.toLowerCase() || '';
     const componentStack = errorInfo.componentStack?.toLowerCase() || '';
@@ -62,9 +49,7 @@ class ErrorBoundary extends Component<Props, State> {
       componentStack.includes('popover');
     
     if (isKnownRadixError) {
-      // Log but don't show error UI for this known issue
       console.warn('[Non-Critical] Known Radix UI error suppressed:', error.message);
-      // Reset the error state immediately without showing error screen
       this.setState({
         hasError: false,
         error: null,
@@ -73,17 +58,12 @@ class ErrorBoundary extends Component<Props, State> {
       return;
     }
     
-    // Log error details to console for other errors
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     
-    // Update state with error details
     this.setState({
       error,
       errorInfo,
     });
-
-    // You can also log the error to an error reporting service here
-    // Example: logErrorToService(error, errorInfo);
   }
 
   handleReset = () => {
@@ -100,12 +80,10 @@ class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      // Custom fallback UI provided by parent
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
-      // Default fallback UI
       return (
         <div className="min-h-screen flex items-center justify-center bg-background p-4">
           <Card className="w-full max-w-2xl">
@@ -123,7 +101,6 @@ class ErrorBoundary extends Component<Props, State> {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Error Message */}
               {this.state.error && (
                 <div className="p-4 bg-muted rounded-lg">
                   <p className="font-semibold text-sm mb-2">Mensagem de Erro:</p>
@@ -133,7 +110,6 @@ class ErrorBoundary extends Component<Props, State> {
                 </div>
               )}
 
-              {/* Error Stack (Development Only) */}
               {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
                 <details className="p-4 bg-muted rounded-lg">
                   <summary className="font-semibold text-sm cursor-pointer hover:text-primary">
@@ -145,7 +121,6 @@ class ErrorBoundary extends Component<Props, State> {
                 </details>
               )}
 
-              {/* Help Text */}
               <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
                 <p className="text-sm text-blue-900 dark:text-blue-100">
                   <strong>O que você pode fazer:</strong>
@@ -158,7 +133,6 @@ class ErrorBoundary extends Component<Props, State> {
                 </ul>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex gap-3 pt-2">
                 <Button
                   onClick={this.handleReset}
@@ -178,7 +152,6 @@ class ErrorBoundary extends Component<Props, State> {
                 </Button>
               </div>
 
-              {/* Support Info */}
               <div className="text-center pt-4 border-t">
                 <p className="text-xs text-muted-foreground">
                   Se precisar de ajuda, entre em contato com o suporte técnico
@@ -196,17 +169,3 @@ class ErrorBoundary extends Component<Props, State> {
 
 export default ErrorBoundary;
 
-/**
- * Hook version for functional components (optional)
- * Note: Error boundaries must be class components, but you can wrap them
- */
-export const withErrorBoundary = <P extends object>(
-  Component: React.ComponentType<P>,
-  fallback?: ReactNode
-) => {
-  return (props: P) => (
-    <ErrorBoundary fallback={fallback}>
-      <Component {...props} />
-    </ErrorBoundary>
-  );
-};

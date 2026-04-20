@@ -35,7 +35,7 @@ const Login = () => {
     try {
       const success = await login(email, password);
       if (success) {
-        navigate('/admin/dashboard');
+        navigate('/gestao');
       } else {
         setError('Credenciais inválidas');
       }
@@ -51,17 +51,15 @@ const Login = () => {
       <div className="w-full max-w-md">
         <div className="bg-[#E9EDF2] rounded-[28px] shadow-[0_20px_35px_rgba(0,0,0,0.08)] p-8">
           
-          {/* Logo - 40% maior que placeholder */}
-
+          {/* Logo */}
           <div className="text-center mb-6 min-h-[70px] flex justify-center items-center">
-            <img src="/logo_webside.png" alt="Webside" className="h-10 w-auto object-contain drop-shadow-md" />
+            <img src="/logo-sigo.png" alt="SIGO" className="h-14 w-auto object-contain drop-shadow-md" />
           </div>
-
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-[1.35rem] font-bold bg-gradient-to-r from-[#0F2C59] to-[#2C74B3] bg-clip-text text-transparent mb-3 font-semibold tracking-tight">
-              Sistema de Gestão Empresarial
+            <h1 className="text-[1.35rem] font-bold bg-gradient-to-r from-[hsl(var(--brand-navy))] to-[hsl(var(--brand-blue))] bg-clip-text text-transparent mb-3 font-semibold tracking-tight">
+              SIGO - Sistema Integrado para Gestão Operacional
             </h1>
             <p className="text-[#5A6E8A] text-sm">
               Acesse sua conta para continuar
@@ -76,7 +74,7 @@ const Login = () => {
               </Label>
               <div className="relative">
                 <i className={cn('fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-lg transition-colors', 
-                  emailFocus || email ? 'text-[#2C74B3]' : 'text-[#A0AEC0]')}></i>
+                  emailFocus || email ? 'text-[hsl(var(--brand-blue))]' : 'text-[#A0AEC0]')}></i>
                 <Input
                   type="email"
                   placeholder="seu@email.com"
@@ -84,7 +82,7 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   onFocus={() => setEmailFocus(true)}
                   onBlur={() => setEmailFocus(false)}
-                  className="pl-12 pr-4 py-3 border-2 border-[#E2E8F0] rounded-2xl bg-white focus:border-[#2C74B3] focus:ring-2 focus:ring-[#2C74B3]/20 transition-all hover:border-[#E2E8F0]/80 h-12 text-base"
+                  className="pl-12 pr-4 py-3 border-2 border-[#E2E8F0] rounded-2xl bg-white focus:border-[hsl(var(--brand-blue))] focus:ring-2 focus:ring-[hsl(var(--brand-blue))]/20 transition-all hover:border-[#E2E8F0]/80 h-12 text-base"
                   disabled={isLoading}
                 />
               </div>
@@ -97,7 +95,7 @@ const Login = () => {
               </Label>
               <div className="relative">
                 <i className={cn('fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-lg transition-colors', 
-                  passwordFocus || password ? 'text-[#2C74B3]' : 'text-[#A0AEC0]')}></i>
+                  passwordFocus || password ? 'text-[hsl(var(--brand-blue))]' : 'text-[#A0AEC0]')}></i>
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
@@ -105,7 +103,7 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setPasswordFocus(true)}
                   onBlur={() => setPasswordFocus(false)}
-                  className="pl-12 pr-12 py-3 border-2 border-[#E2E8F0] rounded-2xl bg-white focus:border-[#2C74B3] focus:ring-2 focus:ring-[#2C74B3]/20 transition-all hover:border-[#E2E8F0]/80 h-12 text-base"
+                  className="pl-12 pr-12 py-3 border-2 border-[#E2E8F0] rounded-2xl bg-white focus:border-[hsl(var(--brand-blue))] focus:ring-2 focus:ring-[hsl(var(--brand-blue))]/20 transition-all hover:border-[#E2E8F0]/80 h-12 text-base"
                   disabled={isLoading}
                 />
               </div>
@@ -114,7 +112,7 @@ const Login = () => {
             {/* Link Recuperar Senha */}
             <div className="text-right">
               <button type="button" onClick={() => setError('🔐 Para demonstração, utilize a senha: admin123')} 
-                className="text-sm text-[#2C74B3] hover:text-[#0F2C59] underline hover:no-underline transition-colors">
+                className="text-sm text-[hsl(var(--brand-blue))] hover:text-[hsl(var(--brand-navy))] underline hover:no-underline transition-colors">
                 <i className="far fa-question-circle mr-1"></i>Recuperar senha
               </button>
             </div>
@@ -123,7 +121,7 @@ const Login = () => {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-gradient-to-r from-[#0F2C59] to-[#2C74B3] hover:from-[#1a3f6e] hover:to-[#3a80bc] text-white font-semibold rounded-[40px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 text-base"
+              className="w-full h-12 bg-gradient-to-r from-[hsl(var(--brand-navy))] to-[hsl(var(--brand-blue))] hover:from-[hsl(var(--brand-navy)/1.1)] hover:to-[hsl(var(--brand-blue)/1.1)] text-white font-semibold rounded-[40px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 text-base"
             >
               {isLoading ? (
                 <>
@@ -141,20 +139,20 @@ const Login = () => {
 
           {/* Mensagem de Erro/Sucesso */}
           {error && (
-            <Alert className="mt-4 border-l-4 border-[#2C74B3] bg-[#E9F7EF]/50">
+            <Alert className="mt-4 border-l-4 border-[hsl(var(--brand-blue))] bg-[hsl(var(--brand-blue)/0.05)]">
               <AlertDescription className="text-sm text-[#2D3748]">{error}</AlertDescription>
             </Alert>
           )}
 
           {/* Demo Info */}
-          <div className="mt-8 p-4 bg-white border-l-4 border-l-[#2C74B3] rounded-xl shadow-sm">
+          <div className="mt-8 p-4 bg-white border-l-4 border-l-[hsl(var(--brand-blue))] rounded-xl shadow-sm">
             <div className="flex items-start gap-3">
-              <i className="fas fa-info-circle text-[#2C74B3] text-lg mt-0.5 flex-shrink-0"></i>
+              <i className="fas fa-info-circle text-[hsl(var(--brand-blue))] text-lg mt-0.5 flex-shrink-0"></i>
               <div>
-                <p className="font-semibold text-[#0F2C59] text-sm mb-1">Para demonstração:</p>
+                <p className="font-semibold text-[hsl(var(--brand-navy))] text-sm mb-1">Para demonstração:</p>
                 <div className="text-xs space-y-1">
-                  <div className="font-mono font-bold text-[#0F2C59]">admin@empresa.com</div>
-                  <div className="font-mono font-bold text-[#0F2C59]">admin123</div>
+                  <div className="font-mono font-bold text-[hsl(var(--brand-navy))]">admin@empresa.com</div>
+                  <div className="font-mono font-bold text-[hsl(var(--brand-navy))]">admin123</div>
                 </div>
               </div>
             </div>
@@ -162,7 +160,7 @@ const Login = () => {
 
           {/* Rodapé */}
           <p className="text-center mt-8 text-[0.7rem] text-[#8A99B0]">
-            © 2025 - Webside Consultoria e Sistemas
+            © 2025 - SIGO Sistemas | <a href="https://websidesistemas.com.br/sigo" target="_blank" rel="noopener noreferrer" className="underline hover:text-[hsl(var(--brand-blue))] transition-colors">websidesistemas.com.br/sigo</a>
           </p>
         </div>
       </div>

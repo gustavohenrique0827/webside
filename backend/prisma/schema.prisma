@@ -5,10 +5,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
 }
+
 
 model Filial {
   idFilial          BigInt     @id @default(autoincrement())
@@ -48,5 +49,28 @@ model Colaborador {
   @@map("colaborador")
 }
 
-// Add more models from schema...
+model Grupo {
+  idGrupo     BigInt   @id @default(autoincrement())
+  nome        String
+  ativo       Boolean  @default(true)
+  clientes    Cliente[]
+
+  @@map("grupo")
+}
+
+model Cliente {
+  idCliente      BigInt    @id @default(autoincrement())
+  idGrupo        BigInt
+  nome           String
+  email          String?
+  telefone       String?
+  idFilial       BigInt?
+  ativo          Boolean   @default(true)
+  dataCriacao    DateTime  @default(now())
+  grupo          Grupo     @relation(fields: [idGrupo], references: [idGrupo])
+  filial         Filial?   @relation(fields: [idFilial], references: [idFilial])
+
+  @@map("cliente")
+}
+
 

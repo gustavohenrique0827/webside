@@ -1,5 +1,5 @@
 
-import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client/core';
+import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 
 // Determine the GraphQL URL based on environment

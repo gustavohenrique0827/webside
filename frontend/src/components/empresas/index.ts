@@ -1,3 +1,3 @@
 export { EmpresaFormDialog } from './EmpresaFormDialog';
-export { EmpresaViewDialog } from './EmpresaViewDialog';
+export { default as EmpresaViewDialog } from './EmpresaViewDialog';
 export { EmpresasTable } from './EmpresasTable';

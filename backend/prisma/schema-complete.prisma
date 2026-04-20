@@ -1,0 +1,13 @@
+// This is your Prisma schema file,
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Filial {
+  idFilial          BigInt     @id @default(autoincrement())
+  cnpj              String     @unique
+  razao

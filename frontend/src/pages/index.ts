@@ -8,7 +8,7 @@ export { default as Privacidade } from './privacidade';
 export { default as Suporte } from './Suporte';
 export { default as Chat } from './Chat.tsx';
 
-
+export { default as Oferta } from './Oferta';
 
 export { default as WP_PDV } from './solucoes/WP-PDV';
 export { default as WP_PAY } from './solucoes/WP-PAY';

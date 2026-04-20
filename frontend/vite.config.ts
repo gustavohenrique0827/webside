@@ -1,41 +1,20 @@
-/// <reference types="vite/client" />
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
-import { componentTagger } from "lovable-tagger";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react-swc'
+import path from 'path'
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
-  server: {
-    host: "::",
-    port: 8080,
-    // Proxy para o backend Node.js (GraphQL)
-    // Uses localhost as fallback for Docker builds
-    proxy: {
-      '/graphql': {
-        target: 'http://localhost:3002',
-        changeOrigin: true,
-        ws: true,
-      },
-      '/api': {
-        target: 'http://localhost:3002',
-        changeOrigin: true,
-        ws: true,
-      },
-      '/health': {
-        target: 'http://localhost:3002',
-        changeOrigin: true,
-      },
-    },
-  },
-  plugins: [
-    react(),
-    mode === 'development' &&
-    componentTagger(),
-  ].filter(Boolean),
+export default defineConfig({
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-}));
+  server: {
+    port: 5173,
+    proxy: {
+      '/graphql': 'http://localhost:5000',
+    },
+  },
+})
+

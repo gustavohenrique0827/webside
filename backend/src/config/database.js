@@ -2,7 +2,7 @@ const mysql = require('mysql2/promise');
 const { logger } = require('./logger');
 
 // Usar MySQL local do Docker por padrão
-const dbHost = process.env.DB_HOST || 'localhost';
+const dbHost = process.env.DB_HOST || '127.0.0.1';
 const dbPort = process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306;
 
 const poolConfig = {
@@ -10,7 +10,7 @@ const poolConfig = {
   port: dbPort,
   user: process.env.DB_USER || 'websid23_dev',
   password: process.env.DB_PASSWORD || 'Web@132435*',
-  database: process.env.DB_NAME || 'websid23_erp',
+database: process.env.DB_NAME || 'websid23_erp',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -32,9 +32,11 @@ pool.getConnection()
     connection.release();
   })
   .catch(err => {
-    logger.errorWithStack('❌ Erro ao conectar no banco de dados:', err, {
+    logger.warn('⚠️ Conexão DB desabilitada (remote access):', {
       host: poolConfig.host,
-      database: poolConfig.database
+      database: poolConfig.database,
+      error: err.message,
+      solution: 'cPanel Remote MySQL → Add 129.121.39.130'
     });
   });
 
@@ -129,4 +131,3 @@ pool.getConnection = async function() {
 };
 
 module.exports = pool;
-

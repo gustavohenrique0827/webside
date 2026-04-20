@@ -1,11 +1,8 @@
-// Component temporário - remover quando não necessário
-const AuthAwareHome = () => null;
+import React from 'react';
+
+const AuthAwareHome = () => {
+  return null; // Temporary placeholder component - remove when implemented
+};
 
 export default AuthAwareHome;
-</create_file>
 
-<execute_command>
-<command>
-docker compose -f docker/docker-compose.prod.yml up -d
-</command>
-</execute_command>

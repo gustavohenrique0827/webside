@@ -1,18 +1,14 @@
-# GraphQL 502/Login Fix - Implementation Steps
-Status: Plan approved, implementing
+# Backend Port Fix Plan (Approved - Proceeding)
 
-## Steps (check off as completed):
-- [x] Diagnose: nginx.conf missing /graphql proxy to backend:5000
-- [x] Edit nginx.conf with correct /graphql and /api/ proxies
-- [x] docker compose restart frontend backend (reload nginx)
-- [x] Test: curl localhost:5000/graphql -> 200 OK ✅
-- [x] Frontend nginx uses docker/nginx.production.conf (not root nginx.conf)
-- [x] docker compose -f docker/docker-compose.yml restart frontend
-- [x] Fix docker/nginx.production.conf (/graphql -> backend:5000)
-- [x] docker compose -f docker/docker-compose.yml up -d frontend (rebuilt with new nginx config)
-- [x] Test: curl localhost/graphql -> 200 OK ✅ (502 fixed)
-- [x] Test frontend login (GraphQL 502/login errors fixed - backend healthy, nginx proxy correct)
+Status: User confirmed to proceed (same error persists)
 
-- [x] Update TODO-graphql-502-fix.md as complete
-- [ ] attempt_completion
+## Approved Plan Steps:
+1. [x] Kill process using port 5000
+2. [ ] Edit backend/src/index.js - change default PORT from 5000 → 3002
+3. [ ] Update backend/package.json dev script to PORT=3002 node src/index.js
+4. [ ] Test npm run dev
+5. [ ] Update frontend GraphQL endpoint if needed
+
+## Next Step
+Change port in code to 3002 (available per previous standardization)
 

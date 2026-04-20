@@ -8,102 +8,89 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Webside Brand Colors */
-    --brand-navy: 230 85% 7%;
-    --brand-blue: 199 96% 50%;
-    --brand-light-blue: 199 96% 95%;
+    /* SIGO Brand Colors */
+    --brand-navy: 222 70% 23%; /* #1A2F5D */
+    --brand-blue: 196 96% 59%; /* #04A6F9 */
+    --brand-light-blue: 196 96% 90%; /* light variant */
+    --brand-orange: 15 100% 62%; /* #FF6633 */
+    --brand-green: 159 100% 30%; /* #009933 */
     
     --background: 0 0% 100%;
-    --foreground: 230 85% 7%;
+    --foreground: 222 70% 23%;
 
     --card: 0 0% 100%;
-    --card-foreground: 230 85% 7%;
+    --card-foreground: 222 70% 23%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 230 85% 7%;
+    --popover-foreground: 222 70% 23%;
 
-    --primary: 230 85% 7%;
+    --primary: 222 70% 23%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
-    --secondary-foreground: 230 85% 7%;
+    --secondary-foreground: 222 70% 23%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 199 96% 50%;
+    --accent: 196 96% 59%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 15 100% 62%;
+    --destructive-foreground: 0 0% 100%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 199 96% 50%;
+    --ring: 196 96% 59%;
 
     --radius: 0.75rem;
     
     /* Gradients */
-    --gradient-hero: linear-gradient(180deg, hsl(var(--brand-navy)) 0%, hsl(230 85% 12%) 35%, hsl(230 80% 15%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(var(--brand-navy)) 0%, hsl(222 70% 28%) 35%, hsl(222 70% 33%) 100%);
     --gradient-section: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 40% 98%) 100%);
     
     /* Shadows */
     --shadow-brand: 0 10px 30px -10px hsl(var(--brand-blue) / 0.3);
-    --shadow-card: 0 4px 20px -4px hsl(230 85% 7% / 0.1);
+    --shadow-card: 0 4px 20px -4px hsl(222 70% 23% / 0.1);
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
+    --sidebar-primary: 196 96% 59%;
+    --sidebar-primary-foreground: 222 70% 23%;
+    --sidebar-accent: 196 96% 10%;
+    --sidebar-accent-foreground: 196 96% 59%;
     --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 196 96% 59%;
   }
 
   .dark {
-    --background: 230 85% 7%;
+    --background: 222 70% 10%;
     --foreground: 0 0% 100%;
-
-    --card: 230 85% 10%;
+    --card: 222 70% 12%;
     --card-foreground: 0 0% 100%;
-
-    --popover: 230 85% 7%;
+    --popover: 222 70% 10%;
     --popover-foreground: 0 0% 100%;
-
-    --primary: 0 0% 100%;
-    --primary-foreground: 230 85% 7%;
-
-    --secondary: 230 85% 12%;
+    --primary: 196 96% 59%;
+    --primary-foreground: 222 70% 23%;
+    --secondary: 222 70% 18%;
     --secondary-foreground: 0 0% 100%;
-
-    --muted: 230 85% 12%;
+    --muted: 222 70% 18%;
     --muted-foreground: 0 0% 70%;
-
-    --accent: 199 96% 50%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 62.8% 30.6%;
+    --accent: 196 96% 59%;
+    --accent-foreground: 222 70% 23%;
+    --destructive: 15 100% 62%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 230 85% 15%;
-    --input: 230 85% 15%;
-    --ring: 199 96% 50%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 222 70% 15%;
+    --input: 222 70% 15%;
+    --ring: 196 96% 59%;
+    --sidebar-background: 222 70% 12%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 196 96% 59%;
+    --sidebar-primary-foreground: 222 70% 23%;
+    --sidebar-accent: 196 96% 20%;
+    --sidebar-accent-foreground: 196 96% 59%;
+    --sidebar-border: 222 70% 15%;
+    --sidebar-ring: 196 96% 59%;
   }
 }
 
@@ -116,3 +103,4 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+

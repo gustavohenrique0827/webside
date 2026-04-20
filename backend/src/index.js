@@ -33,7 +33,19 @@ if (!JWT_SECRET) {
 app.use(requestLogger);
 
 // Security headers
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      'default-src': ["'self'", 'https:'],
+      'script-src': ["'self'", "'unsafe-inline'", 'https://apollo-server-landing-page.cdn.apollographql.com', 'https://embeddable-sandbox.cdn.apollographql.com'],
+      'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://apollo-server-landing-page.cdn.apollographql.com', 'https://www.gstatic.com'],
+      'img-src': ["'self'", 'data:', 'https://apollo-server-landing-page.cdn.apollographql.com'],
+      'connect-src': ["'self'", 'https://apollo-server-landing-page.cdn.apollographql.com'],
+      'font-src': ["'self'", 'https://fonts.gstatic.com'],
+      'manifest-src': ["'self'", 'https://apollo-server-landing-page.cdn.apollographql.com'],
+    },
+  },
+})); // Full CSP for Apollo + Google Translate
 
 // NO RATE LIMIT - DISABLED to avoid ReferenceError during testing
 
@@ -118,7 +130,7 @@ async function startServer() {
     res.status(500).json({ error: 'Algo deu errado!' });
   });
 
-  const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3002;
 
   app.listen(PORT, () => {
     logger.info(`
